@@ -1,5 +1,6 @@
 package ec.com.sofka.account.values.objects;
 
+import ec.com.sofka.ConflictException;
 import ec.com.sofka.generics.interfaces.IValueObject;
 
 import java.math.BigDecimal;
@@ -22,6 +23,19 @@ public class Balance implements IValueObject<BigDecimal> {
         return this.value;
     }
 
+    public void ensureSufficientBalance(final BigDecimal amount) {
+        if (this.value.compareTo(amount) < 0) {
+            throw new ConflictException("Insufficient balance");
+        }
+    }
+
+    public void ensureSufficientBalanceWithCost(final BigDecimal amount, final BigDecimal cost) {
+        BigDecimal total = amount.add(cost);
+        if (this.value.compareTo(total) < 0) {
+            throw new ConflictException("Insufficient balance including cost");
+        }
+    }
+
     //hello validations
     private BigDecimal validate(final BigDecimal value){
         if(value == null){
@@ -31,8 +45,6 @@ public class Balance implements IValueObject<BigDecimal> {
         if(value.compareTo(BigDecimal.ZERO) < 0){
             throw new IllegalArgumentException("The balance must be greater than 0");
         }
-
-
         return value;
     }
 }

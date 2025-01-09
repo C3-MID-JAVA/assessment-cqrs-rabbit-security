@@ -10,10 +10,10 @@ import java.math.BigDecimal;
 public class AccountEntity {
     @Id
     private String id;
-
+/*
     @Field("account_id")
     private String accountId;
-
+*/
     @Field("account_number")
     private String accountNumber;
 
@@ -27,13 +27,13 @@ public class AccountEntity {
     private String status;
 
     public AccountEntity(String accountId, String name, String accountNumber, BigDecimal balance,  String status) {
-        this.accountId = accountId;
+        this.id = accountId;
         this.name = name;
         this.accountNumber = accountNumber;
         this.balance = balance;
         this.status = status;
     }
-
+/*
     public AccountEntity(String id, String accountId, String name, String accountNumber, BigDecimal balance,  String status) {
         this.id = id;
         this.accountId = accountId;
@@ -41,15 +41,15 @@ public class AccountEntity {
         this.accountNumber = accountNumber;
         this.balance = balance;
         this.status = status;
-    }
+    }*/
 
     public AccountEntity(){
-        
-    }
 
+    }
+/*
     public String getAccountId() {
         return accountId;
-    }
+    }*/
 
     public String getId() {
         return id;

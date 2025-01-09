@@ -30,8 +30,8 @@ public class NumberAcc implements IValueObject<String> {
             throw new IllegalArgumentException("The number can't be empty");
         }
 
-        if(value.length() != 9){
-            throw new IllegalArgumentException("The number must have 9 characters");
+        if(value.length() != 10){
+            throw new IllegalArgumentException("The account number must be exactly 10 characters");
         }
 
         if (!value.matches("[0-9]+")) {

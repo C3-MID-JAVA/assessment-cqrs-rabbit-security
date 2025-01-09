@@ -10,12 +10,6 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class RabbitConfig {
-    public static final String QUEUE_NAME = "account.created.queue";
-
-    @Bean
-    public String accountCreatedQueueName() {
-        return QUEUE_NAME;
-    }
 
     @Bean
     public MessageConverter jsonMessageConverter() {
@@ -29,6 +23,5 @@ public class RabbitConfig {
         rabbitTemplate.setMessageConverter(jsonMessageConverter());
         return rabbitTemplate;
     }
-
 
 }

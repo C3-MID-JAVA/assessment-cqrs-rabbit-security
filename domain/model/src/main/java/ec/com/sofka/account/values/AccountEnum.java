@@ -4,3 +4,4 @@ public enum AccountEnum {
     ACCOUNT_ACTIVE,
     ACCOUNT_INACTIVE
 }
+

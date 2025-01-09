@@ -7,20 +7,31 @@ import java.math.BigDecimal;
 public class AccountUpdated extends DomainEvent {
     private String accountId;
     private String accountNumber;
-    private String name;
+    private String owner;
     private String status;
     private BigDecimal balance;
 
 
-    public AccountUpdated(String accountId,BigDecimal balance, String accountNumber, String name, String status) {
+    public AccountUpdated(String accountId,BigDecimal balance, String accountNumber, String owner, String status) {
         super(EventsEnum.ACCOUNT_UPDATED.name());
         this.accountId = accountId;
         this.balance = balance;
         this.accountNumber = accountNumber;
-        this.name = name;
+        this.owner = owner;
         this.status = status;
 
     }
+
+    public AccountUpdated(BigDecimal balance, String accountNumber, String owner, String status) {
+        super(EventsEnum.ACCOUNT_UPDATED.name());
+        this.balance = balance;
+        this.accountNumber = accountNumber;
+        this.owner = owner;
+        this.status = status;
+
+    }
+
+
 
     public AccountUpdated() {
         super(EventsEnum.ACCOUNT_UPDATED.name());
@@ -31,8 +42,8 @@ public class AccountUpdated extends DomainEvent {
         return accountNumber;
     }
 
-    public String getName() {
-        return name;
+    public String getOwner() {
+        return owner;
     }
 
     public String getAccountId() {

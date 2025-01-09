@@ -1,6 +1,7 @@
 package ec.com.sofka.generics.domain;
 
-import ec.com.sofka.generics.interfaces.IEvent;
+import ec.com.sofka.ConflictException;
+import ec.com.sofka.generics.interfaces.IApplyEvent;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -22,7 +23,7 @@ public class DomainActionsHandler {
         actions.addAll(container.domainActions);
     }
 
-    public IEvent append(final DomainEvent event){
+    public IApplyEvent append(final DomainEvent event){
         events.add(event);
         return () -> apply(event);
     }
@@ -39,7 +40,9 @@ public class DomainActionsHandler {
             action.accept(event);
             long version = increaseVersion(event);
             event.setVersion(version);
-        }catch(Exception ignored){}
+        }catch(Exception e){
+            new ConflictException("error: "+e.getMessage(),e);
+        }
     }
 
     private void apply(final DomainEvent event){

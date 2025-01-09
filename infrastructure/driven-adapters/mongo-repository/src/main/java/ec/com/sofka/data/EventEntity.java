@@ -5,6 +5,7 @@ import ec.com.sofka.generics.domain.DomainEvent;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
+import reactor.core.publisher.Mono;
 
 import java.util.Arrays;
 import java.util.stream.Collectors;
@@ -60,7 +61,6 @@ public class EventEntity {
 
     public DomainEvent deserializeEvent(JSONMap eventSerializer) {
         try {
-
             String className = Arrays.stream(this.getEventType().toLowerCase().split("_"))
                     .map(part -> Character.toUpperCase(part.charAt(0)) + part.substring(1))
                     .collect(Collectors.joining());
@@ -71,8 +71,5 @@ public class EventEntity {
             return null;
         }
     }
-
-
-
 }
 
