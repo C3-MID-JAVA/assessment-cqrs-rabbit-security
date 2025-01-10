@@ -86,7 +86,7 @@ public class ProcessTransactionUseCase {
                                                                 strategy.getAmount(),
                                                                 LocalDateTime.now(),
                                                                 cmd.getTransactionType(),
-                                                                cmd.getCustomerId()
+                                                                updatedAccountResponse.getAccountId()
                                                         );
 
                                                         TransactionDTO transactionDTO = new TransactionDTO(
@@ -95,7 +95,7 @@ public class ProcessTransactionUseCase {
                                                                 strategy.getAmount(),
                                                                 LocalDateTime.now(),
                                                                 cmd.getTransactionType(),
-                                                                cmd.getCustomerId()
+                                                                updatedAccountResponse.getAccountId()
                                                         );
 
                                                         return transactionRepository.save(transactionDTO)
@@ -108,8 +108,8 @@ public class ProcessTransactionUseCase {
                                                                     customer.markEventsAsCommitted();
                                                                     return new TransactionResponse(
                                                                             savedTransaction.getTransactionId(),
-                                                                            savedTransaction.getAccountId(),
                                                                             customer.getId().getValue(),
+                                                                            savedTransaction.getAccountId(),
                                                                             savedTransaction.getTransactionCost(),
                                                                             savedTransaction.getAmount(),
                                                                             savedTransaction.getDate(),

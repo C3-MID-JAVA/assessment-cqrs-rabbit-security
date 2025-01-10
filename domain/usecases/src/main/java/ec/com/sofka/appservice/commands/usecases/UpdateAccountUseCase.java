@@ -69,8 +69,7 @@ public class UpdateAccountUseCase implements IUseCase<UpdateAccountCommand, Upda
                                                     }));
                                         });
                             });
-                })
-                .defaultIfEmpty(new UpdateAccountResponse()); // Retornar una respuesta vacía en caso de no encontrar eventos
+                });
     }
 
 

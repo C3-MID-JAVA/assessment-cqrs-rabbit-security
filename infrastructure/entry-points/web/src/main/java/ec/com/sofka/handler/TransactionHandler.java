@@ -45,8 +45,6 @@ public class TransactionHandler {
                 .map( transactionResponse -> transactionMapper.toTransactionResponseDTO(transactionResponse));
     }
 
-
-
     public Mono<TransactionResponseDTO> getTransactionByAccountNumber(AccountReqByIdDTO req) {
         GetByElementQuery request = new GetByElementQuery(req.getCustomerId(), req.getAccountNumber());
 
@@ -60,6 +58,5 @@ public class TransactionHandler {
                                 )
                 );
     }
-
 
 }
