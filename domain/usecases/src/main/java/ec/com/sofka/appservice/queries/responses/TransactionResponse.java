@@ -6,15 +6,16 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public class TransactionResponse {
-    private final String customerId;
     private final String transactionId;
+    private final String customerId;
     private final String accountId;
     private final BigDecimal transactionCost;
     private final BigDecimal amount;
     private final LocalDateTime transactionDate;
     private final TransactionType transactionType;
 
-    public TransactionResponse(String customerId, String transactionId,
+    public TransactionResponse(String transactionId,
+                               String customerId,
                                String accountId,
                                BigDecimal transactionCost,
                                BigDecimal amount,
@@ -28,22 +29,6 @@ public class TransactionResponse {
         this.transactionDate = transactionDate;
         this.transactionType = transactionType;
     }
-
-    public TransactionResponse(String transactionId,
-                               String accountId,
-                               BigDecimal transactionCost,
-                               BigDecimal amount,
-                               LocalDateTime transactionDate,
-                               TransactionType transactionType) {
-        this.transactionId = transactionId;
-        this.accountId = accountId;
-        this.transactionCost = transactionCost;
-        this.amount = amount;
-        this.transactionDate = transactionDate;
-        this.transactionType = transactionType;
-        this.customerId = null;
-    }
-
 
     public String getCustomerId() {
         return customerId;

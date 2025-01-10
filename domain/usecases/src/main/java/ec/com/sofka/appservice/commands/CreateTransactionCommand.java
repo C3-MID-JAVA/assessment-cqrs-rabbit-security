@@ -11,21 +11,22 @@ public class CreateTransactionCommand extends Command {
     private final BigDecimal amount;
     private final LocalDateTime transactionDate;
     private final TransactionType transactionType;
-    private final String accountId;
+    private final String customerId;
     private final String accountNumber;
 
-    public CreateTransactionCommand(final String aggregateId, final BigDecimal transactionCost,
+    public CreateTransactionCommand(final BigDecimal transactionCost,
                                     final BigDecimal amount,
                                     final LocalDateTime transactionDate,
                                     final TransactionType transactionType,
-                                    final String accountId) {
-        super(aggregateId);
+                                    final String accountNumber,
+                                    final String customerId) {
+        super(null);
         this.transactionCost = transactionCost;
         this.amount = amount;
         this.transactionDate = transactionDate;
         this.transactionType = transactionType;
-        this.accountId = accountId;
-        this.accountNumber = null;
+        this.accountNumber = accountNumber;
+        this.customerId = customerId;
     }
 
     public BigDecimal getTransactionCost() {
@@ -44,10 +45,9 @@ public class CreateTransactionCommand extends Command {
         return transactionType;
     }
 
-    public String getAccountId() {
-        return accountId;
+    public String getCustomerId() {
+        return customerId;
     }
-
     public String getAccountNumber() {
         return accountNumber;
     }

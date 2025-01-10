@@ -56,7 +56,6 @@ public class DeleteAccountUseCase implements IUseCase<UpdateAccountCommand, Upda
                                                             customer.markEventsAsCommitted(); // Marcar eventos como comprometidos
                                                             return Mono.just(new UpdateAccountResponse(
                                                                     request.getAggregateId(),
-                                                                    result.getAccountId(),
                                                                     result.getAccountNumber(),
                                                                     result.getName(),
                                                                     result.getStatus()

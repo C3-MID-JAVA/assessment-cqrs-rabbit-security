@@ -11,7 +11,8 @@ import java.math.BigDecimal;
 @Schema(description = "Request body for creating an account")
 public class TransactionRequestDTO {
 
-    private String aggregateId;
+    @NotNull(message = "The customer id must not be null")
+    private String customerId;
 
     @NotNull(message = "The account number must not be null")
     @Size(min = 10, max = 10, message = "The account number must be exactly 10 characters")
@@ -27,8 +28,8 @@ public class TransactionRequestDTO {
     @Schema(description = "The type of the transaction (e.g., BRANCH_DEPOSIT, PHYSICAL_PURCHASE)", example = "BRANCH_DEPOSIT")
     private TransactionType transactionType;
 
-    public TransactionRequestDTO(String aggregateId,String accountNumber, BigDecimal amount, TransactionType transactionType) {
-        this.aggregateId = aggregateId;
+    public TransactionRequestDTO(String customerId,String accountNumber, BigDecimal amount, TransactionType transactionType) {
+        this.customerId = customerId;
         this.accountNumber = accountNumber;
         this.amount = amount;
         this.transactionType = transactionType;
@@ -38,8 +39,8 @@ public class TransactionRequestDTO {
 
     }
 
-    public String getAggregateId() {
-        return aggregateId;
+    public String getCustomerId() {
+        return customerId;
     }
 
     public String getAccountNumber() {

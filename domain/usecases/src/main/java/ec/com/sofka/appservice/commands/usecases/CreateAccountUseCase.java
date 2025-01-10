@@ -33,22 +33,15 @@ public class CreateAccountUseCase implements IUseCase <CreateAccountCommand, Acc
                     if (customer == null) {
                         return Mono.error(new RuntimeException("Customer not found"));
                     }
-                    /*
+
                     customer.getUncommittedEvents().forEach(event -> {
-                        repository.save(event);
+                        repository.save(event).subscribe();
                         busEvent.sendEventAccountCreated(Mono.just(event));
-                    });*/
-
-                    customer.getUncommittedEvents()
-                            .stream()
-                            .map(repository::save)
-                            .forEach(busEvent::sendEventAccountCreated);
-
+                    });
                     customer.markEventsAsCommitted();
                     return Mono.just(
                             new AccountResponse(
                                     customer.getId().getValue(),
-                                    customer.getAccount().getId().getValue(),
                                     customer.getAccount().getAccountNumber().getValue(),
                                     customer.getAccount().getOwner().getValue(),
                                     customer.getAccount().getBalance().getValue(),

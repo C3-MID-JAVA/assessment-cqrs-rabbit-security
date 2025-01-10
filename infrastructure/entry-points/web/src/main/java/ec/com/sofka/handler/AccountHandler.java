@@ -41,12 +41,9 @@ public class AccountHandler {
     }
 
     public Mono<AccountResponseDTO> createAccount(AccountRequestDTO request) {
-        // Mapear la solicitud de AccountRequestDTO a CreateAccountRequest
-        CreateAccountCommand createAccountRequest = AccountDTOMapper.toCreateAccountRequest(request);
-
-        // Ejecutar el caso de uso y mapear la respuesta a un ResponseDTO
+        CreateAccountCommand createAccountRequest = AccountDTOMapper.accountRequestDTOtoCreateAccountCommand(request);
         return createAccountUseCase.execute(createAccountRequest)
-                .map(response -> AccountDTOMapper.toAccountResponseDTO(response));
+                .map(AccountDTOMapper::accountResponsetoAccountResponseDTO);
     }
 
 
@@ -55,14 +52,7 @@ public class AccountHandler {
                 .flatMapMany(queryResponse -> Flux.fromIterable(
                         queryResponse.getMultipleResults()
                 ))
-                .map(accountResponse -> new AccountResponseDTO(
-                        accountResponse.getCustomerId(),
-                        accountResponse.getAccountId(),
-                        accountResponse.getName(),
-                        accountResponse.getAccountNumber(),
-                        accountResponse.getBalance(),
-                        accountResponse.getStatus()
-                ));
+                .map(AccountDTOMapper::accountResponsetoAccountResponseDTO);
     }
 
     public Mono<AccountResponseDTO> getAccountByNumber(AccountReqByIdDTO request) {
@@ -74,14 +64,7 @@ public class AccountHandler {
                 .flatMap(queryResponse -> Mono.justOrEmpty(
                         queryResponse.getSingleResult()
                 ))
-                .map(response -> new AccountResponseDTO(
-                response.getCustomerId(),
-                response.getAccountId(),
-                response.getName(),
-                response.getAccountNumber(),
-                response.getBalance(),
-                response.getStatus()
-        ));
+                .map(AccountDTOMapper::accountResponsetoAccountResponseDTO);
     }
 
     public Mono<AccountResponseDTO> getAccountById(AccountReqByIdDTO request) {
@@ -93,51 +76,20 @@ public class AccountHandler {
                 .flatMap(queryResponse -> Mono.justOrEmpty(
                         queryResponse.getSingleResult()
                 ))
-                .map(response -> new AccountResponseDTO(
-                response.getCustomerId(),
-                response.getAccountId(),
-                response.getName(),
-                response.getAccountNumber(),
-                response.getBalance(),
-                response.getStatus()
-        ));
+                .map(AccountDTOMapper::accountResponsetoAccountResponseDTO);
     }
 
 
     public Mono<AccountResponseDTO> updateAccount(AccountRequestDTO request) {
-        return updateAccountUseCase.execute(
-                new UpdateAccountCommand(
-                        request.getCustomerId(),
-                        request.getInitialBalance(),
-                        request.getAccountNumber(),
-                        request.getOwner(),
-                        request.getStatus()
-                )).map(response -> new AccountResponseDTO(
-                response.getCustomerId(),
-                response.getAccountId(),
-                response.getName(),
-                response.getAccountNumber(),
-                response.getBalance(),
-                response.getStatus()
-        ));
+        return updateAccountUseCase.execute(AccountDTOMapper.accountRequestDTOtoUpdateAccountCommand(request))
+                .map(AccountDTOMapper::updateAccountResponseToAccountResponse)
+                .map(AccountDTOMapper::accountResponsetoAccountResponseDTO);
     }
 
     public Mono<AccountResponseDTO> deleteAccount(AccountRequestDTO request) {
-        return deleteAccountUseCase.execute(
-                new UpdateAccountCommand(
-                        request.getCustomerId(),
-                        request.getInitialBalance(),
-                        request.getAccountNumber(),
-                        request.getOwner(),
-                        request.getStatus()
-                )).map(response -> new AccountResponseDTO(
-                response.getCustomerId(),
-                response.getAccountId(),
-                response.getName(),
-                response.getAccountNumber(),
-                response.getBalance(),
-                response.getStatus()
-        ));
+        return deleteAccountUseCase.execute(AccountDTOMapper.accountRequestDTOtoUpdateAccountCommand(request))
+                .map(AccountDTOMapper::updateAccountResponseToAccountResponse)
+                .map(AccountDTOMapper::accountResponsetoAccountResponseDTO);
     }
 
 

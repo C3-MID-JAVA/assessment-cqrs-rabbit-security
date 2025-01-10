@@ -2,6 +2,8 @@ package ec.com.sofka.appservice.queries.usecases;
 
 import ec.com.sofka.ConflictException;
 import ec.com.sofka.aggregate.Customer;
+import ec.com.sofka.appservice.gateway.dto.AccountDTO;
+import ec.com.sofka.appservice.mapper.Mapper;
 import ec.com.sofka.appservice.queries.responses.AccountResponse;
 import ec.com.sofka.appservice.queries.query.GetByElementQuery;
 import ec.com.sofka.appservice.gateway.IAccountRepository;
@@ -36,10 +38,9 @@ public class GetAccountByAccountNumberUseCase implements IUseCaseGet<GetByElemen
                     return Customer.from(request.getAggregateId(), Flux.fromIterable(events))
                             .flatMap(customer -> {
                                 return repository.findByAccountNumber(customer.getAccount().getAccountNumber().getValue())
-                                        .switchIfEmpty(Mono.error(new ConflictException("Account not found.")))
+                                        .switchIfEmpty(Mono.error(new ConflictException("Account not found by number account.")))
                                         .map(accountDTO -> new AccountResponse(
                                                 request.getAggregateId(),
-                                                accountDTO.getAccountId(),
                                                 accountDTO.getAccountNumber(),
                                                 accountDTO.getName(),
                                                 accountDTO.getBalance(),

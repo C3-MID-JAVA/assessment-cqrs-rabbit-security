@@ -33,10 +33,9 @@ public class GetAccountByIdUseCase implements IUseCaseGet<GetByElementQuery, Acc
                     return Customer.from(request.getAggregateId(), Flux.fromIterable(events))
                             .flatMap(customer -> {
                                 return repository.findById(customer.getAccount().getAccountNumber().getValue())
-                                        .switchIfEmpty(Mono.error(new ConflictException("Account not found.")))
+                                        .switchIfEmpty(Mono.error(new ConflictException("Account not found by id.")))
                                         .map(accountDTO -> new AccountResponse(
                                                 request.getAggregateId(),
-                                                accountDTO.getAccountId(),
                                                 accountDTO.getAccountNumber(),
                                                 accountDTO.getName(),
                                                 accountDTO.getBalance(),

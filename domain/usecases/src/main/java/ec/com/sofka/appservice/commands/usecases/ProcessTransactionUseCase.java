@@ -4,6 +4,7 @@ import ec.com.sofka.ConflictException;
 import ec.com.sofka.account.Account;
 import ec.com.sofka.aggregate.Customer;
 import ec.com.sofka.appservice.commands.CreateTransactionCommand;
+import ec.com.sofka.appservice.gateway.dto.AccountDTO;
 import ec.com.sofka.appservice.mapper.Mapper;
 import ec.com.sofka.appservice.queries.query.GetByElementQuery;
 import ec.com.sofka.appservice.commands.UpdateAccountCommand;
@@ -46,14 +47,14 @@ public class ProcessTransactionUseCase {
     }
 
     public Mono<TransactionResponse> apply(CreateTransactionCommand cmd, OperationType operationType) {
-        GetByElementQuery accountNumberRequest = new GetByElementQuery(cmd.getAggregateId(), cmd.getAccountNumber());
+        GetByElementQuery accountNumberRequest = new GetByElementQuery(cmd.getCustomerId(), cmd.getAccountNumber());
         return getAccountByNumberUseCase.get(accountNumberRequest)
                 .switchIfEmpty(Mono.error(new ConflictException("Account not found")))
                 .flatMap(queryResponse -> {
                     return Mono.justOrEmpty(queryResponse.getSingleResult())
                             .switchIfEmpty(Mono.error(new ConflictException("Account not found in query response.")))
                             .flatMap(accountResponse -> {
-                                Account account = Mapper.mapToAccount(accountResponse);
+                                Account account = Mapper.accountResponseToAccount(accountResponse);
 
                                 Customer customer = new Customer();
 
@@ -85,7 +86,7 @@ public class ProcessTransactionUseCase {
                                                                 strategy.getAmount(),
                                                                 LocalDateTime.now(),
                                                                 cmd.getTransactionType(),
-                                                                cmd.getAccountId()
+                                                                cmd.getCustomerId()
                                                         );
 
                                                         TransactionDTO transactionDTO = new TransactionDTO(
@@ -94,7 +95,7 @@ public class ProcessTransactionUseCase {
                                                                 strategy.getAmount(),
                                                                 LocalDateTime.now(),
                                                                 cmd.getTransactionType(),
-                                                                cmd.getAccountId()
+                                                                cmd.getCustomerId()
                                                         );
 
                                                         return transactionRepository.save(transactionDTO)

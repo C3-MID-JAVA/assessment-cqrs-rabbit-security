@@ -9,7 +9,7 @@ import jakarta.validation.constraints.Size;
 import java.math.BigDecimal;
 @Schema(description = "Request body for creating an account")
 public class AccountRequestDTO {
-
+    @NotNull(message = "The customer id must not be null")
     public String customerId;
 
     @NotNull(message = "The account number must not be null")
@@ -60,23 +60,4 @@ public class AccountRequestDTO {
         return status;
     }
 
-    public void setCustomerId(String customerId) {
-        this.customerId = customerId;
-    }
-
-    public void setAccountNumber(String accountNumber) {
-        this.accountNumber = accountNumber;
-    }
-
-    public void setInitialBalance(BigDecimal initialBalance) {
-        this.initialBalance = initialBalance;
-    }
-
-    public void setOwner(String owner) {
-        this.owner = owner;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
 }

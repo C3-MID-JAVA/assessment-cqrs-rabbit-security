@@ -60,7 +60,6 @@ public class UpdateAccountUseCase implements IUseCase<UpdateAccountCommand, Upda
 
                                                         return Mono.just(new UpdateAccountResponse(
                                                                 request.getAggregateId(),
-                                                                result.getAccountId(),
                                                                 result.getAccountNumber(),
                                                                 result.getName(),
                                                                 result.getStatus(),
@@ -70,7 +69,7 @@ public class UpdateAccountUseCase implements IUseCase<UpdateAccountCommand, Upda
                                         });
                             });
                 })
-                .defaultIfEmpty(new UpdateAccountResponse()); // Retornar una respuesta vacía en caso de no encontrar eventos
+                .defaultIfEmpty(new UpdateAccountResponse());
     }
 
 
