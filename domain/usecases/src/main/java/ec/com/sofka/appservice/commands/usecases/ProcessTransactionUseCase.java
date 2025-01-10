@@ -14,6 +14,7 @@ import ec.com.sofka.appservice.gateway.IEventStore;
 import ec.com.sofka.appservice.gateway.ITransactionRepository;
 import ec.com.sofka.appservice.gateway.dto.TransactionDTO;
 import ec.com.sofka.enums.OperationType;
+import ec.com.sofka.generics.domain.DomainEvent;
 import ec.com.sofka.strategy.process.CalculateFinalBalance;
 import ec.com.sofka.strategy.process.GetTransactionStrategy;
 import reactor.core.publisher.Flux;
@@ -30,20 +31,20 @@ public class ProcessTransactionUseCase {
     private final CalculateFinalBalance calculateFinalBalanceUseCase;
     private final UpdateAccountUseCase updateAccountUseCase;
     private final ITransactionRepository transactionRepository;
-    private final IEventStore repository;
+    private final IEventStore eventRepository;
 
     private final Predicate<BigDecimal> isSaldoInsuficiente = saldo -> saldo.compareTo(BigDecimal.ZERO) < 0;
 
     public ProcessTransactionUseCase(GetAccountByAccountNumberUseCase getAccountByNumberUseCase,
                                      GetTransactionStrategy getTransactionStrategyUseCase,
                                      CalculateFinalBalance calculateFinalBalanceUseCase,
-                                     UpdateAccountUseCase updateAccountUseCase, ITransactionRepository transactionRepository, IEventStore repository) {
+                                     UpdateAccountUseCase updateAccountUseCase, ITransactionRepository transactionRepository, IEventStore eventRepository) {
         this.getAccountByNumberUseCase = getAccountByNumberUseCase;
         this.getTransactionStrategyUseCase = getTransactionStrategyUseCase;
         this.calculateFinalBalanceUseCase = calculateFinalBalanceUseCase;
         this.updateAccountUseCase = updateAccountUseCase;
         this.transactionRepository = transactionRepository;
-        this.repository = repository;
+        this.eventRepository = eventRepository;
     }
 
     public Mono<TransactionResponse> apply(CreateTransactionCommand cmd, OperationType operationType) {
@@ -57,7 +58,6 @@ public class ProcessTransactionUseCase {
                                 Account account = Mapper.accountResponseToAccount(accountResponse);
 
                                 Customer customer = new Customer();
-
                                 return getTransactionStrategyUseCase.apply(account, cmd.getTransactionType(), operationType, cmd.getAmount())
                                         .flatMap(strategy -> {
                                             BigDecimal finalBalance = calculateFinalBalanceUseCase.apply(
@@ -101,7 +101,7 @@ public class ProcessTransactionUseCase {
                                                         return transactionRepository.save(transactionDTO)
                                                                 .flatMap(savedTransaction -> {
                                                                     return Flux.fromIterable(customer.getUncommittedEvents())
-                                                                            .flatMap(repository::save)
+                                                                            .flatMap(eventRepository::save)
                                                                             .then(Mono.just(savedTransaction));
                                                                 })
                                                                 .map(savedTransaction -> {

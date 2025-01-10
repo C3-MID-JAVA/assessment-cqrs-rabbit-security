@@ -24,7 +24,7 @@ public class Customer extends AggregateRoot<CustomerId> {
     //5. Add the Account to the aggregate: Can't be final bc the aggregate is mutable by EventDomains
     private Account account;
 
-    private final List<Transaction> transactions = new ArrayList<>(); // Gestión de transacciones
+    private List<Transaction> transactions = new ArrayList<>(); // Gestión de transacciones
 
 
     //To create the Aggregate the first time, ofc have to set the id as well.
