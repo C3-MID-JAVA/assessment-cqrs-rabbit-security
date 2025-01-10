@@ -15,6 +15,6 @@ public class TransactionSavedViewUseCase implements IUseCaseSave<TransactionDTO>
 
     @Override
     public void save(TransactionDTO save) {
-        transactionRepository.save(save);
+        transactionRepository.save(save).subscribe();
     }
 }

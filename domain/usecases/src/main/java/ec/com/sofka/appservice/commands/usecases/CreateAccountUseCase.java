@@ -25,44 +25,35 @@ public class CreateAccountUseCase implements IUseCase <CreateAccountCommand, Acc
 
     @Override
     public Mono<AccountResponse> execute(CreateAccountCommand cmd) {
-        // Verificar si ya existe una cuenta con el mismo número
         return accountRepository.findByAccountNumber(cmd.getNumber())
                 .flatMap(existingAccount -> Mono.<AccountResponse>error(new ConflictException("The account number is already registered.")))
                 .switchIfEmpty(Mono.defer(() -> {
-                    // Crear un cliente y una cuenta
                     Customer customer = new Customer();
                     customer.createAccount(cmd.getNumber(), cmd.getBalance(), cmd.getCustomerName(), cmd.getStatus());
+                    if (customer == null) {
+                        return Mono.error(new RuntimeException("Customer not found"));
+                    }
+                    /*
+                    customer.getUncommittedEvents().forEach(event -> {
+                        repository.save(event);
+                        busEvent.sendEventAccountCreated(Mono.just(event));
+                    });*/
 
-                    // Guardar la cuenta en el repositorio
-                    return accountRepository.save(
-                                    new AccountDTO(
-                                            customer.getAccount().getId().getValue(),
-                                            customer.getAccount().getOwner().getValue(),
-                                            customer.getAccount().getAccountNumber().getValue(),
-                                            customer.getAccount().getBalance().getValue(),
-                                            customer.getAccount().getStatus().getValue()
-                                    )
-                            ).onErrorResume(e -> {
-                                // Maneja el error, por ejemplo, registrando el error
-                                return Mono.error(new RuntimeException("Account creation failed"));
-                            })
-                            .flatMap(savedAccount -> Flux.fromIterable(customer.getUncommittedEvents())
-                                    .flatMap(repository::save)
-                                    .doOnNext(savedEvents -> busEvent.sendEventAccountCreated(Mono.just(savedEvents)))
-                                    .then(
-                                            Mono.just(new AccountResponse(
-                                                            customer.getId().getValue(),
-                                                            customer.getAccount().getId().getValue(),
-                                                            customer.getAccount().getAccountNumber().getValue(),
-                                                            customer.getAccount().getOwner().getValue(),
-                                                            customer.getAccount().getBalance().getValue(),
-                                                            customer.getAccount().getStatus().getValue())
-                                    ))
-                            )
-                            .doOnSuccess(saved -> {
-                                customer.markEventsAsCommitted();
-                            });
+                    customer.getUncommittedEvents()
+                            .stream()
+                            .map(repository::save)
+                            .forEach(busEvent::sendEventAccountCreated);
 
+                    customer.markEventsAsCommitted();
+                    return Mono.just(
+                            new AccountResponse(
+                                    customer.getId().getValue(),
+                                    customer.getAccount().getId().getValue(),
+                                    customer.getAccount().getAccountNumber().getValue(),
+                                    customer.getAccount().getOwner().getValue(),
+                                    customer.getAccount().getBalance().getValue(),
+                                    customer.getAccount().getStatus().getValue())
+                    );
                 }));
     }
 
