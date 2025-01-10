@@ -77,22 +77,7 @@ public class TransactionRouter {
                             }
                     )
             ),
-            @RouterOperation(
-                    path = "/transactions",
-                    operation = @Operation(
-                            tags = {"Transactions"},
-                            operationId = "listTransactions",
-                            summary = "List all transactions",
-                            description = "Fetches a list of all transactions available in the system.",
-                            responses = {
-                                    @ApiResponse(
-                                            responseCode = "200",
-                                            description = "Successfully retrieved the list of transactions",
-                                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = TransactionResponseDTO[].class))
-                                    )
-                            }
-                    )
-            ),
+
             @RouterOperation(
                     path = "/transactions/deposit",
                     operation = @Operation(
@@ -156,8 +141,7 @@ public class TransactionRouter {
         return RouterFunctions
                 .route(POST("/transactions/deposit").and(accept(MediaType.APPLICATION_JSON)), this::createDeposit)
                 .andRoute(POST("/transactions/withdrawal").and(accept(MediaType.APPLICATION_JSON)), this::createWithDrawal)
-                .andRoute(POST("/transactions/accountNumber").and(accept(MediaType.APPLICATION_JSON)), this::getTransactionByAccountNumber)
-                .andRoute(GET("/transactions"), this::getAllTransactions);
+                .andRoute(POST("/transactions/accountNumber").and(accept(MediaType.APPLICATION_JSON)), this::getTransactionByAccountNumber);
     }
 
 
@@ -196,16 +180,5 @@ public class TransactionRouter {
                         .bodyValue(accountResponseDTO))
                 .onErrorResume(ex -> globalErrorHandler.handleException(request.exchange(), ex));
     }
-
-    public Mono<ServerResponse> getAllTransactions(ServerRequest request) {
-        return handler.getTransactions()
-                .collectList()
-                .flatMap(transactions -> ServerResponse
-                        .status(HttpStatus.OK)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .bodyValue(transactions))
-                .onErrorResume(ex -> globalErrorHandler.handleException(request.exchange(), ex));
-    }
-
 
 }

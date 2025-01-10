@@ -8,10 +8,10 @@ import org.springframework.stereotype.Component;
 @PropertySource("classpath:rabbit-application.properties")
 public class AccountUpdatedProperties {
 
-    @Value("${account.exchange.name}")
+    @Value("${account.exchange.updated.name}")
     private String exchangeName;
 
-    @Value("${account.queue.updated}")
+    @Value("${account.queue.updated.name}")
     private String queueName;
 
     @Value("${account.routing.key.updated}")

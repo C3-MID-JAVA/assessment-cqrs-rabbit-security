@@ -28,8 +28,6 @@ import java.util.Map;
 @Service
 public class BusListener implements BusMessageListener {
 
-    private final QueueManager queueManager;
-
     private final AccountSavedViewUseCase accountSavedViewUseCase;
     private final AccountUpdatedViewUseCase accountUpdatedViewUseCase;
     private final TransactionSavedViewUseCase transactionSavedViewUseCase;
@@ -39,14 +37,13 @@ public class BusListener implements BusMessageListener {
 
 
 
-    public BusListener(QueueManager queueManager,
+    public BusListener(
                        AccountSavedViewUseCase accountSavedViewUseCase,
                        AccountUpdatedViewUseCase accountUpdatedViewUseCase,
                        TransactionSavedViewUseCase transactionSavedViewUseCase,
                        AccountCreatedProperties accountCreatedProperties,
                        AccountUpdatedProperties accountUpdatedProperties,
                        TransactionCreatedProperties transactionCreatedProperties) {
-        this.queueManager = queueManager;
         this.accountSavedViewUseCase = accountSavedViewUseCase;
         this.accountUpdatedViewUseCase = accountUpdatedViewUseCase;
         this.transactionSavedViewUseCase = transactionSavedViewUseCase;

@@ -19,7 +19,6 @@ public class TransactionHandler {
 
     private final CreateDepositUseCase createDepositUseCase;
     private final CreateWithDrawalUseCase createWithDrawalUseCase;
-    private final GetTransactionsUseCase getTransactionsUseCase;
     private final GetTransactionByAccNumberUseCase getTransactionByIdUseCase;
     private final TransactionDTOMapper transactionMapper;
     private final GetAccountByIdUseCase getAccountByIdUseCase;
@@ -28,13 +27,11 @@ public class TransactionHandler {
     public TransactionHandler(CreateDepositUseCase createDepositUseCase,
                               TransactionDTOMapper transactionMapper,GetAccountByIdUseCase getAccountByIdUseCase,
                               CreateWithDrawalUseCase createWithDrawalUseCase,
-                              GetTransactionsUseCase getTransactionsUseCase,
                               GetTransactionByAccNumberUseCase getTransactionByIdUseCase) {
         this.createDepositUseCase = createDepositUseCase;
         this.transactionMapper = transactionMapper;
         this.getAccountByIdUseCase = getAccountByIdUseCase;
         this.createWithDrawalUseCase = createWithDrawalUseCase;
-        this.getTransactionsUseCase = getTransactionsUseCase;
         this.getTransactionByIdUseCase = getTransactionByIdUseCase;
     }
 
@@ -42,7 +39,7 @@ public class TransactionHandler {
         return createDepositUseCase.execute(transactionMapper.toCreateTransactionRequest(transactionRequestDTO))
                 .flatMap(transaction -> {
                     GetByElementQuery request = new GetByElementQuery(transaction.getCustomerId(), transaction.getAccountId());
-                    return getAccountByIdUseCase.execute(request)
+                    return getAccountByIdUseCase.get(request)
                             .map(account -> {
                                 return transactionMapper.toTransactionResponseDTO(transaction);
                             });
@@ -53,7 +50,7 @@ public class TransactionHandler {
         return createWithDrawalUseCase.execute(transactionMapper.toCreateTransactionRequest(transactionRequestDTO))
                 .flatMap(transaction -> {
                     GetByElementQuery request = new GetByElementQuery(transaction.getCustomerId(), transaction.getAccountId());
-                    return getAccountByIdUseCase.execute(request)
+                    return getAccountByIdUseCase.get(request)
                             .map(account -> {
                                 return transactionMapper.toTransactionResponseDTO(transaction);
                             });
@@ -65,21 +62,14 @@ public class TransactionHandler {
     public Mono<TransactionResponseDTO> getTransactionByAccountNumber(AccountReqByIdDTO req) {
         GetByElementQuery request = new GetByElementQuery(req.getCustomerId(), req.getAccountNumber());
 
-        return getTransactionByIdUseCase.execute(request)
-                .flatMap(transactionResponse ->
-                        getAccountByIdUseCase.execute(new GetByElementQuery(transactionResponse.getCustomerId(),
-                                        transactionResponse.getAccountId()))
-                                .map(accountResponse -> TransactionDTOMapper.toTransactionResponseDTO(transactionResponse))
-
-                );
-    }
-
-    public Flux<TransactionResponseDTO> getTransactions() {
-        return getTransactionsUseCase.apply()
-                .flatMap(transaction ->
-                        getAccountByIdUseCase.execute(new GetByElementQuery(transaction.getCustomerId(), transaction.getAccountId()))
-                                .map(accountResponse -> TransactionDTOMapper.toTransactionResponseDTO(transaction))
-                                .switchIfEmpty(Mono.just(TransactionDTOMapper.toTransactionResponseDTO(transaction)))
+        return getTransactionByIdUseCase.get(request)
+                .flatMap(queryResponse ->
+                        Mono.justOrEmpty(queryResponse.getSingleResult()) // Acceder al TransactionResponse
+                                .flatMap(transactionResponse ->
+                                        getAccountByIdUseCase.get(new GetByElementQuery(transactionResponse.getCustomerId(),
+                                                        transactionResponse.getAccountId()))
+                                                .map(accountResponse -> TransactionDTOMapper.toTransactionResponseDTO(transactionResponse))
+                                )
                 );
     }
 

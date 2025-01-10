@@ -47,82 +47,79 @@ public class ProcessTransactionUseCase {
 
     public Mono<TransactionResponse> apply(CreateTransactionCommand cmd, OperationType operationType) {
         GetByElementQuery accountNumberRequest = new GetByElementQuery(cmd.getAggregateId(), cmd.getAccountNumber());
-        return getAccountByNumberUseCase.execute(accountNumberRequest)
+        return getAccountByNumberUseCase.get(accountNumberRequest)
                 .switchIfEmpty(Mono.error(new ConflictException("Account not found")))
-                .flatMap(accountResponse -> {
-                    // Mapear AccountResponse a Account
-                    Account account = Mapper.mapToAccount(accountResponse);
-                    // Crear un cliente asociado a la transacción
-                    Customer customer = new Customer();
+                .flatMap(queryResponse -> {
+                    return Mono.justOrEmpty(queryResponse.getSingleResult())
+                            .switchIfEmpty(Mono.error(new ConflictException("Account not found in query response.")))
+                            .flatMap(accountResponse -> {
+                                Account account = Mapper.mapToAccount(accountResponse);
 
-                    return getTransactionStrategyUseCase.apply(account, cmd.getTransactionType(), operationType, cmd.getAmount())
-                            .flatMap(strategy -> {
-                                // Calcular el balance final después de la transacción
-                                BigDecimal finalBalance = calculateFinalBalanceUseCase.apply(
-                                        account.getBalance().getValue(),
-                                        cmd.getAmount(),
-                                        strategy.getAmount(),
-                                        operationType
-                                );
+                                Customer customer = new Customer();
 
-                                // Verificar si el saldo es insuficiente
-                                if (isSaldoInsuficiente.test(finalBalance)) {
-                                    return Mono.error(new ConflictException("Insufficient balance for transaction."));
-                                }
-
-                                // Actualizar la cuenta con el nuevo balance
-                                UpdateAccountCommand updateAccountRequest = new UpdateAccountCommand(
-                                        cmd.getAggregateId(),
-                                        finalBalance,
-                                        account.getAccountNumber().getValue(),
-                                        account.getOwner().getValue(),
-                                        account.getStatus().getValue()
-                                );
-
-                                return updateAccountUseCase.execute(updateAccountRequest)
-                                        .flatMap(updatedAccountResponse -> {
-                                            // Crear y guardar el evento de transacción
-                                            customer.createTransaction(
+                                return getTransactionStrategyUseCase.apply(account, cmd.getTransactionType(), operationType, cmd.getAmount())
+                                        .flatMap(strategy -> {
+                                            BigDecimal finalBalance = calculateFinalBalanceUseCase.apply(
+                                                    account.getBalance().getValue(),
                                                     cmd.getAmount(),
                                                     strategy.getAmount(),
-                                                    LocalDateTime.now(),
-                                                    cmd.getTransactionType(),
-                                                    cmd.getAccountId()
+                                                    operationType
                                             );
 
-                                            // Guardar la transacción en el repositorio
-                                            TransactionDTO transactionDTO = new TransactionDTO(
+                                            if (isSaldoInsuficiente.test(finalBalance)) {
+                                                return Mono.error(new ConflictException("Insufficient balance for transaction."));
+                                            }
+
+                                            UpdateAccountCommand updateAccountRequest = new UpdateAccountCommand(
                                                     cmd.getAggregateId(),
-                                                    cmd.getAmount(),
-                                                    strategy.getAmount(),
-                                                    LocalDateTime.now(),
-                                                    cmd.getTransactionType(),
-                                                    cmd.getAccountId()
+                                                    finalBalance,
+                                                    account.getAccountNumber().getValue(),
+                                                    account.getOwner().getValue(),
+                                                    account.getStatus().getValue()
                                             );
 
-                                            return transactionRepository.save(transactionDTO)
-                                                    .flatMap(savedTransaction -> {
-                                                        // Guardar los eventos no confirmados
-                                                        return Flux.fromIterable(customer.getUncommittedEvents())
-                                                                .flatMap(repository::save)
-                                                                .then(Mono.just(savedTransaction));
-                                                    })
-                                                    .map(savedTransaction -> {
-                                                        customer.markEventsAsCommitted();
-                                                        // Crear y devolver la respuesta de transacción
-                                                        return new TransactionResponse(
-                                                                cmd.getAggregateId(),
-                                                                savedTransaction.getTransactionId(),
-                                                                savedTransaction.getAccountId(),
-                                                                savedTransaction.getTransactionCost(),
-                                                                savedTransaction.getAmount(),
-                                                                savedTransaction.getDate(),
-                                                                savedTransaction.getType()
+                                            return updateAccountUseCase.execute(updateAccountRequest)
+                                                    .flatMap(updatedAccountResponse -> {
+                                                        customer.createTransaction(
+                                                                cmd.getAmount(),
+                                                                strategy.getAmount(),
+                                                                LocalDateTime.now(),
+                                                                cmd.getTransactionType(),
+                                                                cmd.getAccountId()
                                                         );
+
+                                                        TransactionDTO transactionDTO = new TransactionDTO(
+                                                                cmd.getAggregateId(),
+                                                                cmd.getAmount(),
+                                                                strategy.getAmount(),
+                                                                LocalDateTime.now(),
+                                                                cmd.getTransactionType(),
+                                                                cmd.getAccountId()
+                                                        );
+
+                                                        return transactionRepository.save(transactionDTO)
+                                                                .flatMap(savedTransaction -> {
+                                                                    return Flux.fromIterable(customer.getUncommittedEvents())
+                                                                            .flatMap(repository::save)
+                                                                            .then(Mono.just(savedTransaction));
+                                                                })
+                                                                .map(savedTransaction -> {
+                                                                    customer.markEventsAsCommitted();
+                                                                    return new TransactionResponse(
+                                                                            cmd.getAggregateId(),
+                                                                            savedTransaction.getTransactionId(),
+                                                                            savedTransaction.getAccountId(),
+                                                                            savedTransaction.getTransactionCost(),
+                                                                            savedTransaction.getAmount(),
+                                                                            savedTransaction.getDate(),
+                                                                            savedTransaction.getType()
+                                                                    );
+                                                                });
                                                     });
                                         });
                             });
                 });
     }
+
 
 }

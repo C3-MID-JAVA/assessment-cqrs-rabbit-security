@@ -12,6 +12,7 @@ import ec.com.sofka.appservice.queries.usecases.GetAllAccountsUseCase;
 import ec.com.sofka.data.AccountReqByIdDTO;
 import ec.com.sofka.data.AccountRequestDTO;
 import ec.com.sofka.data.AccountResponseDTO;
+import ec.com.sofka.generics.utils.QueryResponse;
 import ec.com.sofka.mapper.AccountDTOMapper;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
@@ -22,18 +23,18 @@ public class AccountHandler {
     private final GetAccountByAccountNumberUseCase getAccountByAccountNumberUseCase;
     private final CreateAccountUseCase createAccountUseCase;
     private final GetAccountByIdUseCase getAccountByIdUseCase;
-    private final GetAllAccountsUseCase getAccountsUseCase;
+    private final GetAllAccountsUseCase getAllAccountsUseCase;
     private final DeleteAccountUseCase deleteAccountUseCase;
     private final UpdateAccountUseCase updateAccountUseCase;
 
 
 
     public AccountHandler(GetAccountByAccountNumberUseCase getAccountByAccountNumberUseCase, CreateAccountUseCase createAccountUseCase,
-                          GetAllAccountsUseCase getAccountsUseCase, GetAccountByIdUseCase getAccountByIdUseCase, DeleteAccountUseCase deleteAccountUseCase,
+                          GetAllAccountsUseCase getAllAccountsUseCase, GetAccountByIdUseCase getAccountByIdUseCase, DeleteAccountUseCase deleteAccountUseCase,
                           UpdateAccountUseCase updateAccountUseCase) {
         this.getAccountByAccountNumberUseCase = getAccountByAccountNumberUseCase;
         this.createAccountUseCase = createAccountUseCase;
-        this.getAccountsUseCase = getAccountsUseCase;
+        this.getAllAccountsUseCase = getAllAccountsUseCase;
         this.getAccountByIdUseCase = getAccountByIdUseCase;
         this.deleteAccountUseCase = deleteAccountUseCase;
         this.updateAccountUseCase = updateAccountUseCase;
@@ -50,7 +51,10 @@ public class AccountHandler {
 
 
     public Flux<AccountResponseDTO> getAllAccounts() {
-        return getAccountsUseCase.get()
+        return getAllAccountsUseCase.get()
+                .flatMapMany(queryResponse -> Flux.fromIterable(
+                        queryResponse.getMultipleResults()
+                ))
                 .map(accountResponse -> new AccountResponseDTO(
                         accountResponse.getCustomerId(),
                         accountResponse.getAccountId(),
@@ -62,11 +66,15 @@ public class AccountHandler {
     }
 
     public Mono<AccountResponseDTO> getAccountByNumber(AccountReqByIdDTO request) {
-        return getAccountByAccountNumberUseCase.execute(
+        return getAccountByAccountNumberUseCase.get(
                 new GetByElementQuery(
                         request.getCustomerId(),
                         request.getAccountNumber()
-                )).map(response -> new AccountResponseDTO(
+                ))
+                .flatMap(queryResponse -> Mono.justOrEmpty(
+                        queryResponse.getSingleResult()
+                ))
+                .map(response -> new AccountResponseDTO(
                 response.getCustomerId(),
                 response.getAccountId(),
                 response.getName(),
@@ -77,11 +85,15 @@ public class AccountHandler {
     }
 
     public Mono<AccountResponseDTO> getAccountById(AccountReqByIdDTO request) {
-        return getAccountByIdUseCase.execute(
+        return getAccountByIdUseCase.get(
                 new GetByElementQuery(
                         request.getCustomerId(),
                         request.getCustomerId()
-                )).map(response -> new AccountResponseDTO(
+                ))
+                .flatMap(queryResponse -> Mono.justOrEmpty(
+                        queryResponse.getSingleResult()
+                ))
+                .map(response -> new AccountResponseDTO(
                 response.getCustomerId(),
                 response.getAccountId(),
                 response.getName(),

@@ -77,6 +77,7 @@ public class Customer extends AggregateRoot<CustomerId> {
         return events
                 .filter(eventsFilter -> id.equals(eventsFilter.getAggregateRootId()))
                 .flatMap(event -> Mono.fromRunnable(() -> operation.addEvent(event).apply()))
+                .doOnTerminate(operation::markEventsAsCommitted)
                 .then(Mono.just(operation));
     }
 

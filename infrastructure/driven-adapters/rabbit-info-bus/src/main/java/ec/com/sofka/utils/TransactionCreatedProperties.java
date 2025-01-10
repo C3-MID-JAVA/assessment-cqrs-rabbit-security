@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 @PropertySource("classpath:rabbit-application.properties")
 public class TransactionCreatedProperties {
 
-    @Value("${transaction.exchange.name}")
+    @Value("${transaction.exchange.created.name}")
     private String exchangeName;
 
     @Value("${transaction.queue.created.name}")

@@ -4,10 +4,12 @@ import ec.com.sofka.account.Account;
 import ec.com.sofka.enums.OperationType;
 import ec.com.sofka.enums.TransactionType;
 import ec.com.sofka.strategy.TransaccionStrategy;
+import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
 
+@Component
 public class GetTransactionStrategy {
 
     private final TransaccionStrategyFactory factory;

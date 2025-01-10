@@ -26,6 +26,12 @@ public class AccountMongoConfig {
     @Value("${spring.data.mongodb.accounts-uri}")
     private String bankMongoUri;
 
+
+    @PostConstruct
+    public void init() {
+        System.out.println("Mongo URI: " + bankMongoUri);
+    }
+
     @Primary
     @Bean(name = "accountsDatabaseFactory")
     public ReactiveMongoDatabaseFactory accountsDatabaseFactory() {
@@ -35,7 +41,7 @@ public class AccountMongoConfig {
 
     @Primary
     @Bean(name = "accountMongoTemplate")
-    public ReactiveMongoTemplate bankMongoTemplate(@Qualifier("accountsDatabaseFactory") ReactiveMongoDatabaseFactory bankDatabaseFactory) {
+    public ReactiveMongoTemplate accountMongoTemplate(@Qualifier("accountsDatabaseFactory") ReactiveMongoDatabaseFactory bankDatabaseFactory) {
         return new ReactiveMongoTemplate(bankDatabaseFactory);
     }
 }

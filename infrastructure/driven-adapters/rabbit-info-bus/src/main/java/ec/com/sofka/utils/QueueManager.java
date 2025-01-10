@@ -6,10 +6,12 @@ import org.springframework.stereotype.Component;
 public class QueueManager {
 
     private final AccountCreatedProperties accountProperties;
+    private final AccountUpdatedProperties accountUpdatedProperties;
     private final TransactionCreatedProperties transactionProperties;
 
-    public QueueManager(AccountCreatedProperties accountProperties, TransactionCreatedProperties transactionProperties) {
+    public QueueManager(AccountCreatedProperties accountProperties, AccountUpdatedProperties accountUpdatedProperties, TransactionCreatedProperties transactionProperties) {
         this.accountProperties = accountProperties;
+        this.accountUpdatedProperties = accountUpdatedProperties;
         this.transactionProperties = transactionProperties;
     }
 

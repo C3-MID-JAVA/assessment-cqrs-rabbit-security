@@ -16,11 +16,11 @@ public class CreateAccountUseCase implements IUseCase <CreateAccountCommand, Acc
 
     private final IAccountRepository accountRepository;
     private final IEventStore repository;
-    private final IBusEvent busMessage;
-    public CreateAccountUseCase(IAccountRepository accountRepository, IEventStore repository, IBusEvent busMessage) {
+    private final IBusEvent busEvent;
+    public CreateAccountUseCase(IAccountRepository accountRepository, IEventStore repository, IBusEvent busEvent) {
         this.accountRepository = accountRepository;
         this.repository = repository;
-        this.busMessage = busMessage;
+        this.busEvent = busEvent;
     }
 
     @Override
@@ -44,10 +44,11 @@ public class CreateAccountUseCase implements IUseCase <CreateAccountCommand, Acc
                                     )
                             ).onErrorResume(e -> {
                                 // Maneja el error, por ejemplo, registrando el error
-                                return Mono.error(new RuntimeException("Error al guardar la cuenta"));
+                                return Mono.error(new RuntimeException("Account creation failed"));
                             })
                             .flatMap(savedAccount -> Flux.fromIterable(customer.getUncommittedEvents())
                                     .flatMap(repository::save)
+                                    .doOnNext(savedEvents -> busEvent.sendEventAccountCreated(Mono.just(savedEvents)))
                                     .then(
                                             Mono.just(new AccountResponse(
                                                             customer.getId().getValue(),
