@@ -46,7 +46,7 @@ public class AccountAdapter implements IAccountRepository {
                             found.getId(),
                             accountDTO.getName(),
                             accountDTO.getAccountNumber(),
-                            found.getBalance(),
+                            accountDTO.getBalance(),
                             found.getStatus()
                     );
                     return repository.save(updatedEntity);

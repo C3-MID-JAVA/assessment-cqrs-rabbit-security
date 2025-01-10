@@ -37,24 +37,12 @@ public class TransactionHandler {
 
     public Mono<TransactionResponseDTO> createDeposit(TransactionRequestDTO transactionRequestDTO) {
         return createDepositUseCase.execute(transactionMapper.toCreateTransactionRequest(transactionRequestDTO))
-                .flatMap(transaction -> {
-                    GetByElementQuery request = new GetByElementQuery(transaction.getCustomerId(), transaction.getAccountId());
-                    return getAccountByIdUseCase.get(request)
-                            .map(account -> {
-                                return transactionMapper.toTransactionResponseDTO(transaction);
-                            });
-                });
+                .map( transactionResponse -> transactionMapper.toTransactionResponseDTO(transactionResponse));
     }
 
     public Mono<TransactionResponseDTO> createWithDrawal(TransactionRequestDTO transactionRequestDTO) {
         return createWithDrawalUseCase.execute(transactionMapper.toCreateTransactionRequest(transactionRequestDTO))
-                .flatMap(transaction -> {
-                    GetByElementQuery request = new GetByElementQuery(transaction.getCustomerId(), transaction.getAccountId());
-                    return getAccountByIdUseCase.get(request)
-                            .map(account -> {
-                                return transactionMapper.toTransactionResponseDTO(transaction);
-                            });
-                });
+                .map( transactionResponse -> transactionMapper.toTransactionResponseDTO(transactionResponse));
     }
 
 
