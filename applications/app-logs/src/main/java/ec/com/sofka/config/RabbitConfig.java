@@ -22,13 +22,10 @@ public class RabbitConfig {
         return new Jackson2JsonMessageConverter();
     }
 
-    // AMQP Template: For consuming messages
     @Bean
     public AmqpTemplate rabbitTemplateBean(ConnectionFactory connectionFactory) {
         final RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
         rabbitTemplate.setMessageConverter(jsonMessageConverter());
         return rabbitTemplate;
     }
-
-
 }

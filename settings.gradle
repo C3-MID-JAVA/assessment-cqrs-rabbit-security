@@ -1,7 +1,10 @@
-rootProject.name = 'assessment-cqrs-rabbit-security'
+rootProject.name = 'assessment-eda-es'
 
 include ':app-service'
 findProject(':app-service').projectDir = file('./applications/app-service')
+
+include ':app-logs'
+findProject(':app-logs').projectDir = file('./applications/app-logs')
 
 include ':model'
 findProject(':model').projectDir = file('./domain/model')
@@ -12,15 +15,14 @@ findProject(':usecases').projectDir = file('./domain/usecases')
 include ':mongo-repository'
 findProject(':mongo-repository').projectDir = file('./infrastructure/driven-adapters/mongo-repository')
 
+include ':strategy'
+findProject(':strategy').projectDir = file('./domain/strategy')
+
 include ':web'
 findProject(':web').projectDir = file('./infrastructure/entry-points/web')
 
 include ':serializer'
 findProject(':serializer').projectDir = file('./infrastructure/helpers/serializer')
-
-//Rabbitmq
-include ':app-logs'
-findProject(':app-logs').projectDir = file ('./applications/app-logs')
 
 include ':rabbit-info-bus'
 findProject(':rabbit-info-bus').projectDir = file('./infrastructure/driven-adapters/rabbit-info-bus')
