@@ -11,13 +11,15 @@ import ec.com.sofka.appservice.queries.responses.AccountResponse;
 import ec.com.sofka.appservice.queries.responses.TransactionResponse;
 import ec.com.sofka.appservice.gateway.dto.TransactionDTO;
 
+import java.math.BigDecimal;
+
 public class Mapper {
 
     public static Account accountResponseToAccount(AccountResponse accountResponse) {
         Balance balance = Balance.of(accountResponse.getBalance());
-        AccountId accountId = AccountId.of(accountResponse.getCustomerId());
+        AccountId accountId = AccountId.of(accountResponse.getAccountId());
         NumberAcc numberAcc = NumberAcc.of(accountResponse.getAccountNumber());
-        Owner owner = Owner.of(accountResponse.getCustomerId());
+        Owner owner = Owner.of(accountResponse.getName());
         Status status = Status.of(accountResponse.getStatus());
 
         return new Account(accountId, balance, numberAcc, owner, status);

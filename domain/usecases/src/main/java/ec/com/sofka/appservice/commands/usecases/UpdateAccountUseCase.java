@@ -45,8 +45,8 @@ public class UpdateAccountUseCase implements IUseCase<UpdateAccountCommand, Upda
                                         customer.getAccount().getId().getValue(),
                                         request.getCustomerName(),
                                         request.getNumber(),
-                                        customer.getAccount().getBalance().getValue(),
-                                        customer.getAccount().getStatus().getValue()
+                                        request.getBalance(),
+                                        request.getStatus()
                                 );
 
                                 return accountRepository.update(accountDTO)
@@ -60,6 +60,7 @@ public class UpdateAccountUseCase implements IUseCase<UpdateAccountCommand, Upda
 
                                                         return Mono.just(new UpdateAccountResponse(
                                                                 request.getAggregateId(),
+                                                                result.getAccountId(),
                                                                 result.getAccountNumber(),
                                                                 result.getName(),
                                                                 result.getStatus(),
@@ -69,7 +70,7 @@ public class UpdateAccountUseCase implements IUseCase<UpdateAccountCommand, Upda
                                         });
                             });
                 })
-                .defaultIfEmpty(new UpdateAccountResponse());
+                .defaultIfEmpty(new UpdateAccountResponse()); // Retornar una respuesta vacía en caso de no encontrar eventos
     }
 
 

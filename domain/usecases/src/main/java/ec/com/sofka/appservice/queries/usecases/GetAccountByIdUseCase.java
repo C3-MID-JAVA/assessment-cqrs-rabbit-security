@@ -36,6 +36,7 @@ public class GetAccountByIdUseCase implements IUseCaseGet<GetByElementQuery, Acc
                                         .switchIfEmpty(Mono.error(new ConflictException("Account not found by id.")))
                                         .map(accountDTO -> new AccountResponse(
                                                 request.getAggregateId(),
+                                                accountDTO.getAccountId(),
                                                 accountDTO.getAccountNumber(),
                                                 accountDTO.getName(),
                                                 accountDTO.getBalance(),

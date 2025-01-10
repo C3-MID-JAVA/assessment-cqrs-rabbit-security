@@ -9,7 +9,6 @@ import jakarta.validation.constraints.Size;
 import java.math.BigDecimal;
 @Schema(description = "Request body for creating an account")
 public class AccountRequestDTO {
-    @NotNull(message = "The customer id must not be null")
     public String customerId;
 
     @NotNull(message = "The account number must not be null")

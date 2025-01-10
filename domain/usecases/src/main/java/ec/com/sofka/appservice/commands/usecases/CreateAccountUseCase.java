@@ -42,6 +42,7 @@ public class CreateAccountUseCase implements IUseCase <CreateAccountCommand, Acc
                     return Mono.just(
                             new AccountResponse(
                                     customer.getId().getValue(),
+                                    customer.getAccount().getId().getValue(),
                                     customer.getAccount().getAccountNumber().getValue(),
                                     customer.getAccount().getOwner().getValue(),
                                     customer.getAccount().getBalance().getValue(),

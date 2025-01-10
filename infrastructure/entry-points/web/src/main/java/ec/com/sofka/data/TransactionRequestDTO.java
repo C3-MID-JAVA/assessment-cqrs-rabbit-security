@@ -10,7 +10,6 @@ import java.math.BigDecimal;
 
 @Schema(description = "Request body for creating an account")
 public class TransactionRequestDTO {
-
     @NotNull(message = "The customer id must not be null")
     private String customerId;
 

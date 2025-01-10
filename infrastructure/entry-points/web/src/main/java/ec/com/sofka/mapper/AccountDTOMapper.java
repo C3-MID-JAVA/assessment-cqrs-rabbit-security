@@ -22,6 +22,7 @@ public class AccountDTOMapper {
     public static AccountResponseDTO accountResponsetoAccountResponseDTO(AccountResponse response) {
         return new AccountResponseDTO(
                 response.getCustomerId(),
+                response.getAccountId(),
                 response.getName(),
                 response.getAccountNumber(),
                 response.getBalance(),
@@ -43,6 +44,7 @@ public class AccountDTOMapper {
     public static AccountResponse updateAccountResponseToAccountResponse(UpdateAccountResponse response) {
         return new AccountResponse(
                 response.getCustomerId(),
+                response.getAccountId(),
                 response.getAccountNumber(),
                 response.getName(),
                 response.getBalance(),

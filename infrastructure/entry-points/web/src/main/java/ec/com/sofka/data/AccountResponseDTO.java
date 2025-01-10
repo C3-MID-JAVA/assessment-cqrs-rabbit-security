@@ -24,14 +24,6 @@ public class AccountResponseDTO {
         this.status = status;
     }
 
-    public AccountResponseDTO(String customerId,  String owner, String accountNumber, BigDecimal balance, String status) {
-        this.customerId = customerId;
-        this.owner = owner;
-        this.accountNumber = accountNumber;
-        this.balance = balance;
-        this.status = status;
-    }
-
     public String getCustomerId() {
         return customerId;
     }

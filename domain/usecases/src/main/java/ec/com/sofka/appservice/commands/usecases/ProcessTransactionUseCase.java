@@ -72,7 +72,7 @@ public class ProcessTransactionUseCase {
                                             }
 
                                             UpdateAccountCommand updateAccountRequest = new UpdateAccountCommand(
-                                                    cmd.getAggregateId(),
+                                                    cmd.getCustomerId(),
                                                     finalBalance,
                                                     account.getAccountNumber().getValue(),
                                                     account.getOwner().getValue(),
@@ -107,9 +107,9 @@ public class ProcessTransactionUseCase {
                                                                 .map(savedTransaction -> {
                                                                     customer.markEventsAsCommitted();
                                                                     return new TransactionResponse(
-                                                                            cmd.getAggregateId(),
                                                                             savedTransaction.getTransactionId(),
                                                                             savedTransaction.getAccountId(),
+                                                                            customer.getId().getValue(),
                                                                             savedTransaction.getTransactionCost(),
                                                                             savedTransaction.getAmount(),
                                                                             savedTransaction.getDate(),
