@@ -1,4 +1,4 @@
-package ec.com.sofka.commands.usecases;
+/*package ec.com.sofka.commands.usecases;
 
 import ec.com.sofka.aggregate.Customer;
 import ec.com.sofka.gateway.AccountRepository;
@@ -40,38 +40,12 @@ public class UpdateAccountUseCase implements IUseCaseExecute<UpdateAccountComman
                 request.getCustomerName(),
                 request.getStatus(),
                 request.getIdUser());
-/*
-        //Update the account
-        AccountDTO result = accountRepository.update(
-                new AccountDTO(customer.getAccount().getId().getValue(),
-                        request.getCustomerName(),
-                        request.getNumber(),
-                        customer.getAccount().getBalance().getValue(),
-                        customer.getAccount().getStatus().getValue(),
-                        customer.getAccount().getUserId().getValue()
-                ));
 
-        if (result != null) {
-            //Last step for events to be saved
-            customer.getUncommittedEvents().forEach(eventRepository::save);
-
-            customer.markEventsAsCommitted();
-
-            return new UpdateAccountResponse(
-                    request.getAggregateId(),
-                    result.getId(),
-                    result.getAccountNumber(),
-                    result.getName(),
-                    result.getStatus());
-        }
-*/
         customer.getUncommittedEvents()
                 .stream()
                 .map(eventRepository::save)
                 .forEach(busEvent::sendEvent);
 
-        //customer.getUncommittedEvents()
-           //     .forEach(eventRepository::save);
 
         customer.markEventsAsCommitted();
 
@@ -82,5 +56,58 @@ public class UpdateAccountUseCase implements IUseCaseExecute<UpdateAccountComman
                 customer.getAccount().getName().getValue(),
                 customer.getAccount().getStatus().getValue(),
                 customer.getAccount().getUserId().getValue());
+    }
+}
+*/
+package ec.com.sofka.commands.usecases;
+
+import ec.com.sofka.aggregate.Customer;
+import ec.com.sofka.commands.UpdateAccountCommand;
+import ec.com.sofka.gateway.BusEvent;
+import ec.com.sofka.gateway.IEventStore;
+import ec.com.sofka.generics.domain.DomainEvent;
+import ec.com.sofka.generics.interfaces.IUseCaseExecute;
+import ec.com.sofka.queries.responses.UpdateAccountResponse;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
+public class UpdateAccountUseCase implements IUseCaseExecute<UpdateAccountCommand, Mono<UpdateAccountResponse>> {
+    private final IEventStore eventRepository;
+    private final BusEvent busEvent;
+
+    public UpdateAccountUseCase(IEventStore eventRepository, BusEvent busEvent) {
+        this.eventRepository = eventRepository;
+        this.busEvent = busEvent;
+    }
+
+    @Override
+    public Mono<UpdateAccountResponse> execute(UpdateAccountCommand request) {
+        return eventRepository.findAggregate(request.getAggregateId())
+                .collectList()
+                .flatMap(events -> {
+                    Customer customer = Customer.from(request.getAggregateId(), events);
+
+                    customer.updateAccount(
+                            customer.getAccount().getId().getValue(),
+                            request.getBalance(),
+                            request.getNumber(),
+                            request.getCustomerName(),
+                            request.getStatus(),
+                            request.getIdUser());
+
+                    return Flux.fromIterable(customer.getUncommittedEvents())
+                            .flatMap(eventRepository::save)
+                            .doOnNext(busEvent::sendEvent)
+                            .then(Mono.fromCallable(() -> {
+                                customer.markEventsAsCommitted();
+                                return new UpdateAccountResponse(
+                                        request.getAggregateId(),
+                                        customer.getAccount().getId().getValue(),
+                                        customer.getAccount().getNumber().getValue(),
+                                        customer.getAccount().getName().getValue(),
+                                        customer.getAccount().getStatus().getValue(),
+                                        customer.getAccount().getUserId().getValue());
+                            }));
+                });
     }
 }

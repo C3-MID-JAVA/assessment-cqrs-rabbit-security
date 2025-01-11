@@ -1,4 +1,4 @@
-package ec.com.sofka.commands.usecases;
+/*package ec.com.sofka.commands.usecases;
 import ec.com.sofka.aggregate.Customer;
 import ec.com.sofka.commands.CreateAccountCommand;
 import ec.com.sofka.gateway.BusEvent;
@@ -49,5 +49,48 @@ public class CreateAccountUseCase implements IUseCaseExecute<CreateAccountComman
                 customer.getAccount().getStatus().getValue(),
                 customer.getAccount().getUserId().getValue()
         );
+    }
+}*/
+
+package ec.com.sofka.commands.usecases;
+
+import ec.com.sofka.aggregate.Customer;
+import ec.com.sofka.commands.CreateAccountCommand;
+import ec.com.sofka.gateway.BusEvent;
+import ec.com.sofka.gateway.IEventStore;
+import ec.com.sofka.generics.interfaces.IUseCaseExecute;
+import ec.com.sofka.queries.responses.CreateAccountResponse;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
+public class CreateAccountUseCase implements IUseCaseExecute<CreateAccountCommand, Mono<CreateAccountResponse>> {
+    private final IEventStore repository;
+    private final BusEvent busEvent;
+
+    public CreateAccountUseCase(IEventStore repository, BusEvent busEvent) {
+        this.repository = repository;
+        this.busEvent = busEvent;
+    }
+
+    @Override
+    public Mono<CreateAccountResponse> execute(CreateAccountCommand request) {
+        Customer customer = new Customer();
+        customer.createAccount(request.getNumber(), request.getBalance(), request.getCustomerName(), request.getStatus(), request.getIdUser());
+
+        return Flux.fromIterable(customer.getUncommittedEvents())
+                .flatMap(repository::save)
+                .doOnNext(busEvent::sendEvent)
+                .then(Mono.fromCallable(() -> {
+                    customer.markEventsAsCommitted();
+                    return new CreateAccountResponse(
+                            customer.getId().getValue(),
+                            customer.getAccount().getId().getValue(),
+                            customer.getAccount().getNumber().getValue(),
+                            customer.getAccount().getName().getValue(),
+                            customer.getAccount().getBalance().getValue(),
+                            customer.getAccount().getStatus().getValue(),
+                            customer.getAccount().getUserId().getValue()
+                    );
+                }));
     }
 }
