@@ -1,6 +1,8 @@
 package ec.com.sofka.appservice.queries.usecases;
 
 import ec.com.sofka.aggregate.Customer;
+import ec.com.sofka.aggregate.events.AccountCreated;
+import ec.com.sofka.aggregate.events.AccountUpdated;
 import ec.com.sofka.appservice.queries.responses.AccountResponse;
 import ec.com.sofka.appservice.gateway.IBusEvent;
 import ec.com.sofka.appservice.gateway.IAccountRepository;
@@ -34,16 +36,20 @@ public class GetAllAccountsUseCase implements IUseCaseGetEmpty<AccountResponse> 
         return eventRepository.findAllAggregates()
                 .collectList()
                 .flatMap(events -> {
+                    // Filtrar eventos por tipo de cuenta
                     Map<String, DomainEvent> mapLatestEvents = events.stream()
+                            .filter(event -> event instanceof AccountCreated || event instanceof AccountUpdated)
                             .collect(Collectors.toMap(
                                     DomainEvent::getAggregateRootId,
                                     event -> event,
                                     (existing, replacement) -> existing.getVersion() >= replacement.getVersion() ? existing : replacement
                             ));
+
                     Flux<DomainEvent> latestEventsFlux = Flux.fromIterable(mapLatestEvents.values());
+
                     return latestEventsFlux
                             .flatMap(event -> {
-                                return Customer.from(event.getAggregateRootId(), Flux.fromIterable(events));
+                                return Customer.from(event.getAggregateRootId(), Flux.fromIterable(mapLatestEvents.values()));
                             })
                             .map(customer -> new AccountResponse(
                                     customer.getId().getValue(),
@@ -57,5 +63,6 @@ public class GetAllAccountsUseCase implements IUseCaseGetEmpty<AccountResponse> 
                             .flatMap(responses -> Mono.just(QueryResponse.ofMultiple(responses)));
                 });
     }
+
 
 }
