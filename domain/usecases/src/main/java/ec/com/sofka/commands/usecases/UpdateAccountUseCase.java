@@ -7,17 +7,20 @@ import ec.com.sofka.gateway.dto.AccountDTO;
 import ec.com.sofka.generics.domain.DomainEvent;
 import ec.com.sofka.generics.interfaces.IUseCaseExecute;
 import ec.com.sofka.commands.UpdateAccountCommand;
+import ec.com.sofka.gateway.BusEvent;
 import ec.com.sofka.queries.responses.UpdateAccountResponse;
 
 import java.util.List;
 
 public class UpdateAccountUseCase implements IUseCaseExecute<UpdateAccountCommand, UpdateAccountResponse> {
-    private final AccountRepository accountRepository;
+    //private final AccountRepository accountRepository;
     private final IEventStore eventRepository;
+    private final BusEvent busEvent;
 
-    public UpdateAccountUseCase(AccountRepository accountRepository, IEventStore eventRepository) {
-        this.accountRepository = accountRepository;
+    public UpdateAccountUseCase(IEventStore eventRepository, BusEvent busEvent) {
+
         this.eventRepository = eventRepository;
+        this.busEvent = busEvent;
     }
 
     @Override
@@ -35,15 +38,17 @@ public class UpdateAccountUseCase implements IUseCaseExecute<UpdateAccountComman
                 request.getBalance(),
                 request.getNumber(),
                 request.getCustomerName(),
-                request.getStatus());
-
+                request.getStatus(),
+                request.getIdUser());
+/*
         //Update the account
         AccountDTO result = accountRepository.update(
                 new AccountDTO(customer.getAccount().getId().getValue(),
                         request.getCustomerName(),
                         request.getNumber(),
                         customer.getAccount().getBalance().getValue(),
-                        customer.getAccount().getStatus().getValue()
+                        customer.getAccount().getStatus().getValue(),
+                        customer.getAccount().getUserId().getValue()
                 ));
 
         if (result != null) {
@@ -59,8 +64,23 @@ public class UpdateAccountUseCase implements IUseCaseExecute<UpdateAccountComman
                     result.getName(),
                     result.getStatus());
         }
+*/
+        customer.getUncommittedEvents()
+                .stream()
+                .map(eventRepository::save)
+                .forEach(busEvent::sendEvent);
 
-        return new UpdateAccountResponse();
+        //customer.getUncommittedEvents()
+           //     .forEach(eventRepository::save);
 
+        customer.markEventsAsCommitted();
+
+        return new UpdateAccountResponse(
+                request.getAggregateId(),
+                customer.getAccount().getId().getValue(),
+                customer.getAccount().getNumber().getValue(),
+                customer.getAccount().getName().getValue(),
+                customer.getAccount().getStatus().getValue(),
+                customer.getAccount().getUserId().getValue());
     }
 }

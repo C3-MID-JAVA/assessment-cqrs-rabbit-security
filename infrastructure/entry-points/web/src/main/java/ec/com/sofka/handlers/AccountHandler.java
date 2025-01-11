@@ -35,7 +35,8 @@ public class AccountHandler {
                 new CreateAccountCommand(
                         request.getAccountNum(),
                         request.getName(),
-                        request.getBalance()
+                        request.getBalance(),
+                        request.getIdUser()
 
                 ));
         return new ResponseDTO(response.getCustomerId(),
@@ -83,7 +84,8 @@ public class AccountHandler {
                         request.getBalance(),
                         request.getAccountNum(),
                         request.getName(),
-                        request.getStatus()
+                        request.getStatus(),
+                        request.getIdUser()
                 ));
 
         return new ResponseDTO(
@@ -103,7 +105,8 @@ public class AccountHandler {
                         request.getBalance(),
                         request.getAccountNum(),
                         request.getName(),
-                        request.getStatus()
+                        request.getStatus(),
+                        request.getIdUser()
 
                 ));
         return new ResponseDTO(

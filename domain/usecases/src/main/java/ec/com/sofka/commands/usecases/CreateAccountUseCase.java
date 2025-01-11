@@ -1,6 +1,4 @@
 package ec.com.sofka.commands.usecases;
-
-
 import ec.com.sofka.aggregate.Customer;
 import ec.com.sofka.commands.CreateAccountCommand;
 import ec.com.sofka.gateway.BusEvent;
@@ -26,7 +24,7 @@ public class CreateAccountUseCase implements IUseCaseExecute<CreateAccountComman
         Customer customer = new Customer();
 
         //Then we create the account
-        customer.createAccount(request.getNumber(), request.getBalance(),  request.getCustomerName(),request.getStatus());
+        customer.createAccount(request.getNumber(), request.getBalance(),  request.getCustomerName(),request.getStatus(),request.getIdUser());
 
 
         //Last step for events to be saved
@@ -48,7 +46,8 @@ public class CreateAccountUseCase implements IUseCaseExecute<CreateAccountComman
                 customer.getAccount().getNumber().getValue(),
                 customer.getAccount().getName().getValue(),
                 customer.getAccount().getBalance().getValue(),
-                customer.getAccount().getStatus().getValue()
+                customer.getAccount().getStatus().getValue(),
+                customer.getAccount().getUserId().getValue()
         );
     }
 }

@@ -12,6 +12,7 @@ public class GetAccountResponse {
     private final String status;
 
 
+
    public GetAccountResponse(String customerId, String accountId, String accountNumber, String name, String status) {
         this.customerId = customerId;
         this.accountId = accountId;
@@ -39,9 +40,11 @@ public class GetAccountResponse {
         this.status = status;
     }
 
+
     public String getAccountId() {
         return accountId;
     }
+
     public String getCustomerId() {
         return customerId;
     }
@@ -61,4 +64,5 @@ public class GetAccountResponse {
     public String getStatus() {
         return status;
     }
+
 }

@@ -13,12 +13,15 @@ public class RequestDTO {
 
     public String status;
 
-    public RequestDTO(String customerId, String name, String accountNum, BigDecimal balance, String status) {
+    public String idUser;
+
+    public RequestDTO(String customerId, String name, String accountNum, BigDecimal balance, String status, String idUser) {
         this.customerId = customerId;
         this.name = name;
         this.accountNum = accountNum;
         this.balance = balance;
         this.status = status;
+        this.idUser= idUser;
     }
 
 
@@ -41,6 +44,10 @@ public class RequestDTO {
 
     public String getStatus() {
         return status;
+    }
+
+    public String getIdUser() {
+        return idUser;
     }
 
 

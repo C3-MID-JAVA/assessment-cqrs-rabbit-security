@@ -11,10 +11,10 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/account")
-public class Rest {
+public class RestAccount {
     private final AccountHandler handler;
 
-    public Rest(AccountHandler handler) {
+    public RestAccount(AccountHandler handler) {
         this.handler = handler;
     }
 

@@ -28,18 +28,24 @@ public class GetAccountByNumberUseCase implements IUseCaseGet<GetAccountQuery, G
 
         //Rebuild the aggregate
         Customer customer = Customer.from(request.getAggregateId(),events);
+        System.out.println("numero de cuenta -----"+ customer.getAccount().getNumber().getValue());
 
         //Get the account from the repository
-        AccountDTO result = accountRepository.findByNumber(customer.getAccount().getNumber().getValue());
+        try {
+            //AccountDTO result = accountRepository.findByNumber(customer.getAccount().getNumber().getValue());
+           // System.out.println("Data devuelta de la account -----"+ result);
+            //Return the response
+            return QueryResponse.ofSingle(new GetAccountResponse(
+                    customer.getId().getValue(),
+                    customer.getAccount().getId().getValue(),
+                    customer.getAccount().getNumber().getValue(),
+                    customer.getAccount().getName().getValue(),
+                    customer.getAccount().getBalance().getValue(),
+                    customer.getAccount().getStatus().getValue()
+            ));
 
-        //Return the response
-        return QueryResponse.ofSingle(new GetAccountResponse(
-                request.getAggregateId(),
-                result.getId(),
-                result.getAccountNumber(),
-                result.getName(),
-                result.getBalance(),
-                result.getStatus()
-        ));
+        } catch (Exception e) {
+            throw new RuntimeException("error "+e.getMessage());
+        }
     }
 }

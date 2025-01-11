@@ -11,6 +11,7 @@ public class AccountDTO {
     private String name;
     private BigDecimal balance;
     private String status;
+    private String idUser;
 
     public AccountDTO(String id, String name, String accountNumber, BigDecimal balance, String status) {
         this.id = id;
@@ -18,6 +19,15 @@ public class AccountDTO {
         this.name = name;
         this.accountNumber = accountNumber;
         this.status = status;
+    }
+
+    public AccountDTO(String id, String name, String accountNumber, BigDecimal balance, String status, String idUser) {
+        this.id = id;
+        this.balance = balance;
+        this.name = name;
+        this.accountNumber = accountNumber;
+        this.status = status;
+        this .idUser = idUser;
     }
 
     public AccountDTO(String name, String accountNumber, BigDecimal balance, String status) {
@@ -31,17 +41,17 @@ public class AccountDTO {
         return id;
     }
 
-
+    public String getIdUser() {
+        return idUser;
+    }
 
     public String getAccountNumber() {
         return accountNumber;
     }
 
-
     public String getName() {
         return name;
     }
-
 
     public BigDecimal getBalance() {
         return balance;
@@ -50,4 +60,5 @@ public class AccountDTO {
     public String getStatus() {
         return status;
     }
+
 }

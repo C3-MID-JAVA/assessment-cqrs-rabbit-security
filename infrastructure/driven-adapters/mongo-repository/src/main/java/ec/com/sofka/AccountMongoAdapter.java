@@ -1,13 +1,9 @@
 package ec.com.sofka;
-
-import ec.com.sofka.account.Account;
 import ec.com.sofka.data.AccountEntity;
 import ec.com.sofka.database.account.IMongoRepository;
 import ec.com.sofka.gateway.AccountRepository;
 import ec.com.sofka.gateway.dto.AccountDTO;
 import ec.com.sofka.mapper.AccountMapper;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -29,8 +25,8 @@ public class AccountMongoAdapter implements AccountRepository {
     }
 
     @Override
-    public AccountDTO findByAcccountId(String id) {
-        AccountEntity found = repository.findById(id).get();
+    public AccountDTO findById(String id) {
+        AccountEntity found =  repository.findById(id).orElse(null);
         return AccountMapper.toDTO(found);
     }
 
@@ -51,17 +47,16 @@ public class AccountMongoAdapter implements AccountRepository {
     public AccountDTO update(AccountDTO account) {
         AccountEntity a = AccountMapper.toEntity(account);
 
-        AccountEntity found = repository.findByAccountId(AccountMapper.toEntity(account).getAccountId());
 
-        return found != null ?
+        return findById(account.getId()) != null ?
                 AccountMapper.toDTO(repository.save(
                     new AccountEntity(
-                            found.getId(),
-                            found.getAccountId(),
+                            account.getId(),
                             account.getName(),
                             account.getAccountNumber(),
-                            found.getBalance(),
-                            found.getStatus()
+                            account.getBalance(),
+                            account.getStatus(),
+                            account.getIdUser()
                         )
                     )) : null;
 
@@ -70,19 +65,19 @@ public class AccountMongoAdapter implements AccountRepository {
 
     @Override
     public AccountDTO delete(AccountDTO account) {
-        AccountEntity a = AccountMapper.toEntity(account);
+        //AccountEntity a = AccountMapper.toEntity(account);
 
-        AccountEntity found = repository.findByAccountId(AccountMapper.toEntity(account).getAccountId());
+        //AccountEntity found = repository.findById(AccountMapper.toEntity(account).getId());
 
-        return found != null ?
+        return findById(account.getId()) != null ?
                 AccountMapper.toDTO(repository.save(
                         new AccountEntity(
-                                found.getId(),
-                                found.getAccountId(),
-                                found.getName(),
-                                found.getAccountNumber(),
-                                found.getBalance(),
-                                account.getStatus()
+                                account.getId(),
+                                account.getName(),
+                                account.getAccountNumber(),
+                                account.getBalance(),
+                                account.getStatus(),
+                                account.getIdUser()
                         )
                 )) : null;
     }

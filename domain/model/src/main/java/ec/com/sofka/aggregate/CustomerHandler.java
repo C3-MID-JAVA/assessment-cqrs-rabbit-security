@@ -2,10 +2,7 @@ package ec.com.sofka.aggregate;
 
 import ec.com.sofka.account.Account;
 import ec.com.sofka.account.values.AccountId;
-import ec.com.sofka.account.values.objects.Balance;
-import ec.com.sofka.account.values.objects.Name;
-import ec.com.sofka.account.values.objects.NumberAcc;
-import ec.com.sofka.account.values.objects.Status;
+import ec.com.sofka.account.values.objects.*;
 import ec.com.sofka.aggregate.events.AccountCreated;
 import ec.com.sofka.aggregate.events.AccountUpdated;
 import ec.com.sofka.generics.domain.DomainActionsContainer;
@@ -23,7 +20,8 @@ public class CustomerHandler extends DomainActionsContainer {
                     NumberAcc.of(event.getAccountNumber()),
                     Name.of(event.getName()),
                     Balance.of(event.getAccountBalance()),
-                    Status.of(event.getStatus()));
+                    Status.of(event.getStatus()),
+                    UserId.of(event.getUserId()));
             customer.setAccount(account);
         });
 
@@ -33,7 +31,8 @@ public class CustomerHandler extends DomainActionsContainer {
                     NumberAcc.of(event.getAccountNumber()),
                     Name.of(event.getName()),
                     Balance.of(event.getBalance()),
-                    Status.of(event.getStatus()));
+                    Status.of(event.getStatus()),
+                    UserId.of(event.getUserId()));
             customer.setAccount(account);
         });
     }

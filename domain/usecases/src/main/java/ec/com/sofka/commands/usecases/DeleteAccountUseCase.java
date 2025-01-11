@@ -34,7 +34,8 @@ public class DeleteAccountUseCase implements IUseCaseExecute<UpdateAccountComman
                 customer.getAccount().getBalance().getValue(),
                 customer.getAccount().getNumber().getValue(),
                 customer.getAccount().getName().getValue(),
-                AccountEnum.ACCOUNT_INACTIVE.name()
+                AccountEnum.ACCOUNT_INACTIVE.name(),
+                customer.getAccount().getUserId().getValue()
         );
 
         //"Delete" the account

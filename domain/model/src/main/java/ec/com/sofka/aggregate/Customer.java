@@ -39,27 +39,27 @@ public class Customer extends AggregateRoot<CustomerId> {
     }
 
     //Remember that User as Aggregate is the open door to interact with the entities
-    public void createAccount(String accountNumber, BigDecimal accountBalance, String name, String status) {
+    public void createAccount(String accountNumber, BigDecimal accountBalance, String name, String status, String userId) {
         //Add the event to the aggregate
-        addEvent(new AccountCreated(new AccountId().getValue(), accountNumber,accountBalance,name,status)).apply();
+        addEvent(new AccountCreated(new AccountId().getValue(), accountNumber,accountBalance,name,status,userId)).apply();
 
     }
 
     //Remember that User as Aggregate is the open door to interact with the entities
-    public void updateAccount(String accountId, BigDecimal balance, String accountNumber, String name, String status ) {
+    public void updateAccount(String accountId, BigDecimal balance, String accountNumber, String name, String status, String userId ) {
         //Add the event to the aggregate
-        addEvent(new AccountUpdated(accountId, balance, accountNumber, name, status)).apply();
+        addEvent(new AccountUpdated(accountId, balance, accountNumber, name, status,userId)).apply();
 
     }
 
     //To rebuild the aggregate
     public static Customer from(final String id, List<DomainEvent> events) {
         Customer customer = new Customer(id);
+        System.out.println("Informacion de  customer  "+customer.getAccount());
         events.stream()
                 .filter(event -> id.equals(event.getAggregateRootId()))
                 .forEach((event) -> customer.addEvent(event).apply());
+        customer.markEventsAsCommitted();
         return customer;
     }
-
-
 }

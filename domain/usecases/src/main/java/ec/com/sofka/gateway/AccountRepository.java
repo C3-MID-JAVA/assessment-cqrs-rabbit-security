@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface AccountRepository {
     List<AccountDTO> findAll();
-    AccountDTO findByAcccountId(String id);
+    AccountDTO findById(String id);
     AccountDTO findByNumber(String number);
     AccountDTO save(AccountDTO account);
     AccountDTO update(AccountDTO account);
