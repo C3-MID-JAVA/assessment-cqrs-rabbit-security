@@ -14,12 +14,10 @@ import reactor.core.publisher.Mono;
 
 public class UpdateAccountUseCase implements IUseCase<UpdateAccountCommand, UpdateAccountResponse> {
 
-    private final IAccountRepository accountRepository;
     private final IEventStore eventRepository;
     private final IBusEvent busEvent;
 
-    public UpdateAccountUseCase(IAccountRepository accountRepository, IEventStore eventRepository, IBusEvent busEvent) {
-        this.accountRepository = accountRepository;
+    public UpdateAccountUseCase(IEventStore eventRepository, IBusEvent busEvent) {
         this.eventRepository = eventRepository;
         this.busEvent = busEvent;
     }
@@ -33,6 +31,7 @@ public class UpdateAccountUseCase implements IUseCase<UpdateAccountCommand, Upda
 
                     return Customer.from(request.getAggregateId(), eventFlux)
                             .flatMap(customer -> {
+                                // Actualizar la cuenta en el agregado
                                 customer.updateAccount(
                                         customer.getAccount().getId().getValue(),
                                         request.getBalance(),
@@ -41,38 +40,25 @@ public class UpdateAccountUseCase implements IUseCase<UpdateAccountCommand, Upda
                                         request.getStatus()
                                 );
 
-                                AccountDTO accountDTO = new AccountDTO(
-                                        customer.getAccount().getId().getValue(),
-                                        request.getCustomerName(),
-                                        request.getNumber(),
-                                        request.getBalance(),
-                                        request.getStatus()
-                                );
+                                // Guardar los eventos no comprometidos de forma reactiva
+                                return Flux.fromIterable(customer.getUncommittedEvents())
+                                        .flatMap(eventRepository::save) // Guardar cada evento en el EventStore
+                                        .doOnNext(updateEvent -> busEvent.sendEventAccountUpdated(Mono.just(updateEvent))) // Enviar eventos a través de BusEvent
+                                        .then(Mono.defer(() -> {
+                                            // Marcar los eventos como comprometidos
+                                            customer.markEventsAsCommitted();
 
-                                return accountRepository.update(accountDTO)
-                                        .flatMap(result -> {
-                                            // Guardar los eventos no comprometidos de forma reactiva
-                                            return Flux.fromIterable(customer.getUncommittedEvents())
-                                                    .flatMap(eventRepository::save)
-                                                    .doOnNext(updateEvents ->busEvent.sendEventAccountUpdated(Mono.just(updateEvents)))
-                                                    .then(Mono.defer(() -> {
-                                                        customer.markEventsAsCommitted();
-
-                                                        return Mono.just(new UpdateAccountResponse(
-                                                                request.getAggregateId(),
-                                                                result.getAccountId(),
-                                                                result.getAccountNumber(),
-                                                                result.getName(),
-                                                                result.getStatus(),
-                                                                result.getBalance()
-                                                        ));
-                                                    }));
-                                        });
+                                            // Crear y devolver la respuesta
+                                            return Mono.just(new UpdateAccountResponse(
+                                                    request.getAggregateId(),
+                                                    customer.getAccount().getId().getValue(),
+                                                    customer.getAccount().getAccountNumber().getValue(),
+                                                    customer.getAccount().getOwner().getValue(),
+                                                    customer.getAccount().getStatus().getValue(),
+                                                    customer.getAccount().getBalance().getValue()
+                                            ));
+                                        }));
                             });
                 });
     }
-
-
-
-
 }

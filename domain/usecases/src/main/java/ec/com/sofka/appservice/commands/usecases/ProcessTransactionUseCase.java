@@ -4,6 +4,7 @@ import ec.com.sofka.ConflictException;
 import ec.com.sofka.account.Account;
 import ec.com.sofka.aggregate.Customer;
 import ec.com.sofka.appservice.commands.CreateTransactionCommand;
+import ec.com.sofka.appservice.gateway.IBusEvent;
 import ec.com.sofka.appservice.gateway.dto.AccountDTO;
 import ec.com.sofka.appservice.mapper.Mapper;
 import ec.com.sofka.appservice.queries.query.GetByElementQuery;
@@ -30,21 +31,23 @@ public class ProcessTransactionUseCase {
     private final GetTransactionStrategy getTransactionStrategyUseCase;
     private final CalculateFinalBalance calculateFinalBalanceUseCase;
     private final UpdateAccountUseCase updateAccountUseCase;
-    private final ITransactionRepository transactionRepository;
     private final IEventStore eventRepository;
+    private final IBusEvent busEvent;
 
     private final Predicate<BigDecimal> isSaldoInsuficiente = saldo -> saldo.compareTo(BigDecimal.ZERO) < 0;
 
     public ProcessTransactionUseCase(GetAccountByAccountNumberUseCase getAccountByNumberUseCase,
                                      GetTransactionStrategy getTransactionStrategyUseCase,
                                      CalculateFinalBalance calculateFinalBalanceUseCase,
-                                     UpdateAccountUseCase updateAccountUseCase, ITransactionRepository transactionRepository, IEventStore eventRepository) {
+                                     UpdateAccountUseCase updateAccountUseCase,
+                                     IEventStore eventRepository,
+                                     IBusEvent busEvent) {
         this.getAccountByNumberUseCase = getAccountByNumberUseCase;
         this.getTransactionStrategyUseCase = getTransactionStrategyUseCase;
         this.calculateFinalBalanceUseCase = calculateFinalBalanceUseCase;
         this.updateAccountUseCase = updateAccountUseCase;
-        this.transactionRepository = transactionRepository;
         this.eventRepository = eventRepository;
+        this.busEvent = busEvent;
     }
 
     public Mono<TransactionResponse> apply(CreateTransactionCommand cmd, OperationType operationType) {
@@ -89,38 +92,30 @@ public class ProcessTransactionUseCase {
                                                                 updatedAccountResponse.getAccountId()
                                                         );
 
-                                                        TransactionDTO transactionDTO = new TransactionDTO(
-                                                                cmd.getAggregateId(),
-                                                                cmd.getAmount(),
-                                                                strategy.getAmount(),
-                                                                LocalDateTime.now(),
-                                                                cmd.getTransactionType(),
-                                                                updatedAccountResponse.getAccountId()
-                                                        );
-
-                                                        return transactionRepository.save(transactionDTO)
-                                                                .flatMap(savedTransaction -> {
-                                                                    return Flux.fromIterable(customer.getUncommittedEvents())
-                                                                            .flatMap(eventRepository::save)
-                                                                            .then(Mono.just(savedTransaction));
+                                                        return Flux.fromIterable(customer.getUncommittedEvents())
+                                                                .flatMap(event -> {
+                                                                    // Guardar el evento
+                                                                    return eventRepository.save(event)
+                                                                            // Enviar el evento por BusEvent
+                                                                            .doOnNext(savedEvent ->
+                                                                                    busEvent.sendEventTransactionCreated(Mono.just(savedEvent)));
                                                                 })
-                                                                .map(savedTransaction -> {
-                                                                    customer.markEventsAsCommitted();
-                                                                    return new TransactionResponse(
-                                                                            savedTransaction.getTransactionId(),
-                                                                            customer.getId().getValue(),
-                                                                            savedTransaction.getAccountId(),
-                                                                            savedTransaction.getTransactionCost(),
-                                                                            savedTransaction.getAmount(),
-                                                                            savedTransaction.getDate(),
-                                                                            savedTransaction.getType()
-                                                                    );
-                                                                });
+                                                                .then(Mono.just(customer.getUncommittedEvents()));
+                                                    })
+                                                    .map(uncommittedEvents -> {
+                                                        customer.markEventsAsCommitted();
+                                                        return new TransactionResponse(
+                                                                cmd.getAggregateId(),
+                                                                customer.getId().getValue(),
+                                                                cmd.getAccountNumber(),
+                                                                strategy.getAmount(),
+                                                                cmd.getAmount(),
+                                                                LocalDateTime.now(),
+                                                                cmd.getTransactionType()
+                                                        );
                                                     });
                                         });
                             });
                 });
     }
-
-
 }

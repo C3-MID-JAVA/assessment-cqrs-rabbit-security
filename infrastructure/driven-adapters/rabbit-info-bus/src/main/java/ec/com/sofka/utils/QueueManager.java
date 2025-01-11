@@ -18,7 +18,8 @@ public class QueueManager {
     public String[] getAllQueues() {
         return new String[] {
                 accountProperties.getQueueName(),
-                transactionProperties.getQueueName()
+                transactionProperties.getQueueName(),
+                accountUpdatedProperties.getQueueName()
         };
     }
 }

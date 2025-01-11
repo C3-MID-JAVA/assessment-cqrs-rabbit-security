@@ -15,11 +15,11 @@ import reactor.core.publisher.Mono;
 public class CreateAccountUseCase implements IUseCase <CreateAccountCommand, AccountResponse>{
 
     private final IAccountRepository accountRepository;
-    private final IEventStore repository;
+    private final IEventStore eventRepository;
     private final IBusEvent busEvent;
-    public CreateAccountUseCase(IAccountRepository accountRepository, IEventStore repository, IBusEvent busEvent) {
+    public CreateAccountUseCase(IAccountRepository accountRepository, IEventStore eventRepository, IBusEvent busEvent) {
         this.accountRepository = accountRepository;
-        this.repository = repository;
+        this.eventRepository = eventRepository;
         this.busEvent = busEvent;
     }
 
@@ -35,7 +35,7 @@ public class CreateAccountUseCase implements IUseCase <CreateAccountCommand, Acc
                     }
 
                     customer.getUncommittedEvents().forEach(event -> {
-                        repository.save(event).subscribe();
+                        eventRepository.save(event).subscribe();
                         busEvent.sendEventAccountCreated(Mono.just(event));
                     });
                     customer.markEventsAsCommitted();
