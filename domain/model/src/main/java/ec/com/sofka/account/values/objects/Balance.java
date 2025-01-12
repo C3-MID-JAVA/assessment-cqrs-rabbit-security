@@ -39,11 +39,11 @@ public class Balance implements IValueObject<BigDecimal> {
     //hello validations
     private BigDecimal validate(final BigDecimal value){
         if(value == null){
-            throw new IllegalArgumentException("The balance can't be null");
+            throw new ConflictException("The balance can't be null");
         }
 
         if(value.compareTo(BigDecimal.ZERO) < 0){
-            throw new IllegalArgumentException("The balance must be greater than 0");
+            throw new ConflictException("The balance must be greater than 0");
         }
         return value;
     }

@@ -49,7 +49,7 @@ public class TransactionRouter {
     @Bean
     @RouterOperations({
             @RouterOperation(
-                    path = "/transactions/accountNumber",
+                    path = "/api/v1//transactions/accountNumber",
                     operation = @Operation(
                             tags = {"Transactions"},
                             operationId = "getTransaction",
@@ -79,7 +79,7 @@ public class TransactionRouter {
             ),
 
             @RouterOperation(
-                    path = "/transactions/deposit",
+                    path = "/api/v1//transactions/deposit",
                     operation = @Operation(
                             tags = {"Transactions"},
                             operationId = "createDeposit",
@@ -108,7 +108,7 @@ public class TransactionRouter {
                     )
             ),
             @RouterOperation(
-                    path = "/transactions/withdrawal",
+                    path = "/api/v1//transactions/withdrawal",
                     operation = @Operation(
                             tags = {"Transactions"},
                             operationId = "createWithdrawal",
@@ -139,9 +139,9 @@ public class TransactionRouter {
     })
     public RouterFunction<ServerResponse> transactionRoutes() {
         return RouterFunctions
-                .route(POST("/transactions/deposit").and(accept(MediaType.APPLICATION_JSON)), this::createDeposit)
-                .andRoute(POST("/transactions/withdrawal").and(accept(MediaType.APPLICATION_JSON)), this::createWithDrawal)
-                .andRoute(POST("/transactions/accountNumber").and(accept(MediaType.APPLICATION_JSON)), this::getTransactionByAccountNumber);
+                .route(POST("/api/v1//transactions/deposit").and(accept(MediaType.APPLICATION_JSON)), this::createDeposit)
+                .andRoute(POST("/api/v1//transactions/withdrawal").and(accept(MediaType.APPLICATION_JSON)), this::createWithDrawal)
+                .andRoute(POST("/api/v1//transactions/accountNumber").and(accept(MediaType.APPLICATION_JSON)), this::getTransactionByAccountNumber);
     }
 
 

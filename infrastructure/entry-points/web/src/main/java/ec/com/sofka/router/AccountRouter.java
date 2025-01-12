@@ -43,7 +43,7 @@ public class AccountRouter {
     @Bean
     @RouterOperations({
             @RouterOperation(
-                    path = "/accounts",
+                    path = "/api/v1//accounts",
                     operation = @Operation(
                             tags = {"Accounts"},
                             operationId = "create",
@@ -72,7 +72,7 @@ public class AccountRouter {
                     )
             ),
             @RouterOperation(
-                    path = "/update",
+                    path = "/api/v1//update",
                     operation = @Operation(
                             tags = {"Accounts"},
                             operationId = "update",
@@ -101,7 +101,7 @@ public class AccountRouter {
                     )
             ),
             @RouterOperation(
-                    path = "/accounts/accountId",
+                    path = "/api/v1//accounts/accountId",
                     operation = @Operation(
                             tags = {"Accounts"},
                             operationId = "getAccountById",
@@ -130,7 +130,7 @@ public class AccountRouter {
                     )
             ),
             @RouterOperation(
-                    path = "/accounts/getAll",
+                    path = "/api/v1//accounts/getAll",
                     operation = @Operation(
                             tags = {"Accounts"},
                             operationId = "listAccounts",
@@ -146,7 +146,7 @@ public class AccountRouter {
                     )
             ),
             @RouterOperation(
-                    path = "/accounts/accountNumber",
+                    path = "/api/v1//accounts/accountNumber",
                     operation = @Operation(
                             tags = {"Accounts"},
                             operationId = "getAccountByAccountNumber",
@@ -175,7 +175,7 @@ public class AccountRouter {
                     )
             ),
             @RouterOperation(
-                    path = "/accounts/{accountId}/balance",
+                    path = "/api/v1//accounts/{accountId}/balance",
                     operation = @Operation(
                             tags = {"Accounts"},
                             operationId = "getAccountBalance",
@@ -206,11 +206,11 @@ public class AccountRouter {
     })
     public RouterFunction<ServerResponse> accountRoutes() {
         return RouterFunctions
-                .route(POST("/accounts").and(accept(MediaType.APPLICATION_JSON)), this::createAccount)
-                .andRoute(POST("/update").and(accept(MediaType.APPLICATION_JSON)), this::updateAccount)
-                .andRoute(POST("/accounts/accountNumber").and(accept(MediaType.APPLICATION_JSON)), this::getAccountByAccountNumber)
-                .andRoute(GET("/accounts/getAll"), this::listAccounts)
-                //.andRoute(POST("/accounts/accountId").and(accept(MediaType.APPLICATION_JSON)), this::getAccountById)
+                .route(POST("/api/v1//accounts").and(accept(MediaType.APPLICATION_JSON)), this::createAccount)
+                .andRoute(POST("/api/v1//update").and(accept(MediaType.APPLICATION_JSON)), this::updateAccount)
+                .andRoute(POST("/api/v1//accounts/accountNumber").and(accept(MediaType.APPLICATION_JSON)), this::getAccountByAccountNumber)
+                .andRoute(GET("/api/v1//accounts/getAll"), this::listAccounts)
+                //.andRoute(POST("/api/v1//accounts/accountId").and(accept(MediaType.APPLICATION_JSON)), this::getAccountById)
         ;
     }
 

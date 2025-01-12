@@ -1,5 +1,6 @@
 package ec.com.sofka.account.values.objects;
 
+import ec.com.sofka.ConflictException;
 import ec.com.sofka.generics.interfaces.IValueObject;
 
 //5. Creation of a value object: In Value objects is where validations must go.
@@ -23,19 +24,19 @@ public class NumberAcc implements IValueObject<String> {
     //hello validations: They can be translated to their own class
     private String validate(final String value){
         if(value == null){
-            throw new IllegalArgumentException("The number can't be null");
+            throw new ConflictException("The number can't be null");
         }
 
         if(value.isBlank()){
-            throw new IllegalArgumentException("The number can't be empty");
+            throw new ConflictException("The number can't be empty");
         }
 
         if(value.length() != 10){
-            throw new IllegalArgumentException("The account number must be exactly 10 characters");
+            throw new ConflictException("The account number must be exactly 10 characters");
         }
 
         if (!value.matches("[0-9]+")) {
-            throw new IllegalArgumentException("The number must be numeric");
+            throw new ConflictException("The number must be numeric");
         }
 
         return value;

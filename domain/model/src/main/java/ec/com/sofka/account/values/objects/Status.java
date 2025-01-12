@@ -1,5 +1,6 @@
 package ec.com.sofka.account.values.objects;
 
+import ec.com.sofka.ConflictException;
 import ec.com.sofka.generics.interfaces.IValueObject;
 
 public class Status implements IValueObject<String> {
@@ -20,15 +21,15 @@ public class Status implements IValueObject<String> {
 
     private String validate(final String value){
         if(value == null){
-            throw new IllegalArgumentException("The status can't be null");
+            throw new ConflictException("The status can't be null");
         }
 
         if(value.isBlank()){
-            throw new IllegalArgumentException("The status can't be empty");
+            throw new ConflictException("The status can't be empty");
         }
 
         if(value.length() < 3){
-            throw new IllegalArgumentException("The status must have at least 3 characters");
+            throw new ConflictException("The status must have at least 3 characters");
         }
 
         return value;

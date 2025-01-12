@@ -4,6 +4,5 @@ dependencies {
 
     //10. Call the module that has the gateway BusMessage
     implementation project(':usecases')
-    implementation project(':properties')
     implementation project(':model')
 }

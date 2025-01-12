@@ -36,8 +36,13 @@ findProject(':app-logs').projectDir = file('./applications/app-logs')
 include ':rabbit-listener-bus'
 findProject(':rabbit-listener-bus').projectDir = file('./infrastructure/entry-points/rabbit-listener-bus')
 
-include ':properties'
-findProject(':properties').projectDir = file('./properties')
+include ':rabbit-listener-bus'
+findProject(':rabbit-listener-bus').projectDir = file('./infrastructure/entry-points/web-security')
+include ':security'
+findProject(':security').projectDir = file('./security')
+
+include ':jwt'
+findProject(':security').projectDir = file('./security/jwt')
 
 include ':serializer'
 findProject(':serializer').projectDir = file('./infrastructure/helpers/serializer')
