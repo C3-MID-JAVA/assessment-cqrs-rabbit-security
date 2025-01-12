@@ -9,13 +9,14 @@ public class CreateUserRequest {
 
 
     @NotNull(message = "username can not be null")
-    @Schema(description = "Unique username assigned to the user", example = "testUser")
+    @Schema(description = "Unique username assigned to the user", example = "Anderson")
     private final String username;
 
     @NotNull(message = "password name can not be null")
-    @Schema(description = "Password  for the user", example = "Abc123#*")
+    @Schema(description = "Password  for the user", example = "12345")
     private final String password;
-
+    @NotNull(message = "password name can not be null")
+    @Schema(description = "Roles  for the user", example = "ADMIN,USER")
     private final String roles;
 
     public CreateUserRequest(String username, String password, String roles) {

@@ -73,6 +73,41 @@ public class AuthRouter {
                                     )
                             }
                     )
+            ),
+            @RouterOperation(
+                    path = "/api/v1/user/authenticate",
+                    method = RequestMethod.POST,
+                    operation = @Operation(
+                            tags = {"authenticate"},
+                            operationId = "login",
+                            summary = "Login",
+                            description = "Login with username and password",
+                            requestBody = @RequestBody(
+                                    description = "Login",
+                                    required = true,
+                                    content = @Content(
+                                            mediaType = "application/json",
+                                            schema = @Schema(implementation = CreateUserRequest.class)
+                                    )
+                            ),
+                            responses = {
+                                    @ApiResponse(
+                                            responseCode = "201",
+                                            description = "Login successfully",
+                                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = CreateUserRequest.class))
+                                    ),
+                                    @ApiResponse(
+                                            responseCode = "400",
+                                            description = "Bad request, validation error or missing required fields",
+                                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
+                                    ),
+                                    @ApiResponse(
+                                            responseCode = "500",
+                                            description = "Username could already exist",
+                                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
+                                    )
+                            }
+                    )
             )
     })
     public RouterFunction<ServerResponse> userRoutes() {

@@ -72,7 +72,7 @@ public class AccountRouter {
                     )
             ),
             @RouterOperation(
-                    path = "/api/v1//update",
+                    path = "/api/v1/update",
                     operation = @Operation(
                             tags = {"Accounts"},
                             operationId = "update",
@@ -101,7 +101,7 @@ public class AccountRouter {
                     )
             ),
             @RouterOperation(
-                    path = "/api/v1//accounts/accountId",
+                    path = "/api/v1/accounts/accountId",
                     operation = @Operation(
                             tags = {"Accounts"},
                             operationId = "getAccountById",
@@ -130,7 +130,7 @@ public class AccountRouter {
                     )
             ),
             @RouterOperation(
-                    path = "/api/v1//accounts/getAll",
+                    path = "/api/v1/accounts/getAll",
                     operation = @Operation(
                             tags = {"Accounts"},
                             operationId = "listAccounts",
@@ -146,7 +146,7 @@ public class AccountRouter {
                     )
             ),
             @RouterOperation(
-                    path = "/api/v1//accounts/accountNumber",
+                    path = "/api/v1/accounts/accountNumber",
                     operation = @Operation(
                             tags = {"Accounts"},
                             operationId = "getAccountByAccountNumber",
@@ -173,43 +173,14 @@ public class AccountRouter {
                                     )
                             }
                     )
-            ),
-            @RouterOperation(
-                    path = "/api/v1//accounts/{accountId}/balance",
-                    operation = @Operation(
-                            tags = {"Accounts"},
-                            operationId = "getAccountBalance",
-                            summary = "Get account balance",
-                            description = "Fetches the balance of the account associated with the given account ID.",
-                            parameters = {
-                                    @Parameter(
-                                            name = "accountId",
-                                            description = "The account ID to retrieve balance info",
-                                            required = true,
-                                            in = ParameterIn.PATH
-                                    )
-                            },
-                            responses = {
-                                    @ApiResponse(
-                                            responseCode = "200",
-                                            description = "Successfully retrieved the account balance",
-                                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = BigDecimal.class))
-                                    ),
-                                    @ApiResponse(
-                                            responseCode = "404",
-                                            description = "Account not found.",
-                                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
-                                    )
-                            }
-                    )
             )
     })
     public RouterFunction<ServerResponse> accountRoutes() {
         return RouterFunctions
-                .route(POST("/api/v1//accounts").and(accept(MediaType.APPLICATION_JSON)), this::createAccount)
-                .andRoute(POST("/api/v1//update").and(accept(MediaType.APPLICATION_JSON)), this::updateAccount)
-                .andRoute(POST("/api/v1//accounts/accountNumber").and(accept(MediaType.APPLICATION_JSON)), this::getAccountByAccountNumber)
-                .andRoute(GET("/api/v1//accounts/getAll"), this::listAccounts)
+                .route(POST("/api/v1/accounts").and(accept(MediaType.APPLICATION_JSON)), this::createAccount)
+                .andRoute(POST("/api/v1/update").and(accept(MediaType.APPLICATION_JSON)), this::updateAccount)
+                .andRoute(POST("/api/v1/accounts/accountNumber").and(accept(MediaType.APPLICATION_JSON)), this::getAccountByAccountNumber)
+                .andRoute(GET("/api/v1/accounts/getAll"), this::listAccounts)
                 //.andRoute(POST("/api/v1//accounts/accountId").and(accept(MediaType.APPLICATION_JSON)), this::getAccountById)
         ;
     }
