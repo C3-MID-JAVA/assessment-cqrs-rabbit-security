@@ -69,6 +69,7 @@ public class RestAccount {
     }
 }
 */
+
 @Configuration
 public class RestAccount {
     private final AccountHandler handler;

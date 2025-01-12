@@ -61,4 +61,8 @@ public class AccountDTO {
         return status;
     }
 
+    public void setBalance(BigDecimal balance) {
+        this.balance = balance;
+    }
+
 }

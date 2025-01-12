@@ -118,5 +118,6 @@ public class GetAllAccountsUseCase implements IUseCaseGet<GetAccountQuery, GetAc
                     return Mono.just(QueryResponse.ofMultiple(responses));
                 });
     }
+
 }
 

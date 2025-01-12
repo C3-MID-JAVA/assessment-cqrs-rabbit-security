@@ -11,8 +11,6 @@ public class GetAccountResponse {
     private final BigDecimal balance;
     private final String status;
 
-
-
    public GetAccountResponse(String customerId, String accountId, String accountNumber, String name, String status) {
         this.customerId = customerId;
         this.accountId = accountId;

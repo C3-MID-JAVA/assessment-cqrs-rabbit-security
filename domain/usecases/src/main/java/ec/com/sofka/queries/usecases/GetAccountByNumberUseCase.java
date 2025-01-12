@@ -94,7 +94,7 @@ public class GetAccountByNumberUseCase implements IUseCaseGet<GetAccountQuery, G
                                 customer.getAccount().getBalance().getValue(),
                                 customer.getAccount().getStatus().getValue()
                         ));
-                    }).onErrorMap(e -> new RuntimeException("error " + e.getMessage()));
+                    }).onErrorMap(e -> new RuntimeException("Cuenta no encontrada" + e.getMessage()));
                 });
     }
 }
