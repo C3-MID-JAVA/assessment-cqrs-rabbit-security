@@ -1,4 +1,4 @@
-package ec.com.sofka.exceptions;
+package ec.com.sofka;
 
 import java.time.LocalDateTime;
 

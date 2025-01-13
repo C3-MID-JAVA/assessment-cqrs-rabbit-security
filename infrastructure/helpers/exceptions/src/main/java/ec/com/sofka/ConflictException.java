@@ -1,4 +1,4 @@
-package ec.com.sofka.exceptions;
+package ec.com.sofka;
 
 public class ConflictException extends RuntimeException {
     public ConflictException(String message) {

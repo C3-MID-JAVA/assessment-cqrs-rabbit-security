@@ -1,4 +1,4 @@
-package ec.com.sofka.exceptions;
+package ec.com.sofka;
 
 public class CuentaNoEncontradaException extends RuntimeException{
     public CuentaNoEncontradaException(String message){

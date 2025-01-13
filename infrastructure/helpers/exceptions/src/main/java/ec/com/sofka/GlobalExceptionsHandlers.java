@@ -1,4 +1,5 @@
-package ec.com.sofka.exceptions;
+/*
+package ec.com.sofka;
 
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
@@ -13,7 +14,7 @@ import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 @RestControllerAdvice
-public class GlobalExceptionHandler {
+public class GlobalExceptionsHandlers {
 
     private Mono<ResponseEntity<ErrorResponse>> createErrorResponse(Exception ex, HttpStatus status, String path) {
         ErrorResponse errorResponse = new ErrorResponse(
@@ -56,6 +57,16 @@ public class GlobalExceptionHandler {
         return createErrorResponse(ex, HttpStatus.INTERNAL_SERVER_ERROR, exchange.getRequest().getPath().toString());
     }
 
+    @ExceptionHandler(UnauthorizedException.class)
+    public Mono<ResponseEntity<ErrorResponse>> noAuthorizedException(UnauthorizedException ex, ServerWebExchange exchange) {
+        return createErrorResponse(ex, HttpStatus.UNAUTHORIZED, exchange.getRequest().getPath().toString());
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public Mono<ResponseEntity<ErrorResponse>> noAuthorizedException(AccessDeniedException ex, ServerWebExchange exchange) {
+        return createErrorResponse(ex, HttpStatus.FORBIDDEN, exchange.getRequest().getPath().toString());
+    }
+
     @ExceptionHandler(Exception.class)
     public Mono<ResponseEntity<ErrorResponse>> handleGenericException(Exception ex, ServerWebExchange exchange) {
         return createErrorResponse(ex, HttpStatus.INTERNAL_SERVER_ERROR, exchange.getRequest().getPath().toString());
@@ -70,4 +81,9 @@ public class GlobalExceptionHandler {
     public Mono<ResponseEntity<String>> handleSaldoInsuficiente(SaldoInsuficienteException ex) {
         return Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage()));
     }
-}
+
+    @ExceptionHandler(NotFoundException.class)
+    public Mono<ResponseEntity<ErrorResponse>> handleNotFoundException(NotFoundException ex, ServerWebExchange exchange) {
+        return createErrorResponse(ex, HttpStatus.NOT_FOUND, exchange.getRequest().getPath().toString());
+    }
+}*/

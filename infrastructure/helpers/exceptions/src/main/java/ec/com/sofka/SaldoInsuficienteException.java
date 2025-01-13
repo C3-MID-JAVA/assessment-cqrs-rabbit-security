@@ -1,4 +1,4 @@
-package ec.com.sofka.exceptions;
+package ec.com.sofka;
 
 public class SaldoInsuficienteException extends RuntimeException{
     public SaldoInsuficienteException(String message){

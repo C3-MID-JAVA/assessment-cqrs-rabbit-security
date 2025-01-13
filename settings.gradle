@@ -18,6 +18,15 @@ findProject(':web').projectDir = file('./infrastructure/entry-points/web')
 include ':serializer'
 findProject(':serializer').projectDir = file('./infrastructure/helpers/serializer')
 
+include ':security'
+findProject(':security').projectDir = file('./infrastructure/helpers/security')
+
+include ':authentication'
+findProject(':authentication').projectDir = file('./domain/authentication')
+
+include ':exceptions'
+findProject(':exceptions').projectDir = file('./infrastructure/helpers/exceptions')
+
 //Rabbitmq
 include ':app-logs'
 findProject(':app-logs').projectDir = file ('./applications/app-logs')

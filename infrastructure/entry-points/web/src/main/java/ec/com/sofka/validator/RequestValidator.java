@@ -1,6 +1,6 @@
 package ec.com.sofka.validator;
 
-import ec.com.sofka.exceptions.ValidationException;
+import ec.com.sofka.ValidationException;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.Errors;

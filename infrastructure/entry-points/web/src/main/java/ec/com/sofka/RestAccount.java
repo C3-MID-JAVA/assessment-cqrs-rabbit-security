@@ -17,58 +17,6 @@ import org.springframework.web.ErrorResponse;
 import org.springframework.web.reactive.function.server.*;
 import reactor.core.publisher.Mono;
 
-/*package ec.com.sofka;
-
-import ec.com.sofka.data.RequestDTO;
-import ec.com.sofka.data.ResponseDTO;
-import ec.com.sofka.handlers.AccountHandler;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-
-@RestController
-@RequestMapping("/api/account")
-public class RestAccount {
-    private final AccountHandler handler;
-
-    public RestAccount(AccountHandler handler) {
-        this.handler = handler;
-    }
-
-
-    @GetMapping
-    public ResponseEntity<List<ResponseDTO>> getAllAccounts(){
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(handler.getAllAccounts());
-    }
-
-    @PostMapping("/number")
-    public ResponseEntity<ResponseDTO> getAccountByNumber(@RequestBody RequestDTO requestDTO){
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(handler.getAccountByNumber(requestDTO));
-    }
-
-    @PostMapping
-    public ResponseEntity<ResponseDTO> createAccount(@RequestBody RequestDTO requestDTO){
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(handler.createAccount(requestDTO));
-    }
-
-    @PutMapping
-    public ResponseEntity<ResponseDTO> updateAccount(@RequestBody RequestDTO requestDTO){
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(handler.updateAccount(requestDTO));
-    }
-
-    @PutMapping("/status")
-    public ResponseEntity<ResponseDTO> deleteAccount(@RequestBody RequestDTO requestDTO){
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(handler.deleteAccount(requestDTO));
-    }
-}
-*/
 
 @Configuration
 public class RestAccount {
@@ -214,7 +162,7 @@ public class RestAccount {
                         .contentType(MediaType.APPLICATION_JSON)
                         .bodyValue(response))
                 .onErrorResume(e -> ServerResponse.status(HttpStatus.BAD_REQUEST)
-                        .bodyValue(e.getMessage()));
+                        .bodyValue("Error creando la cuenta"));
     }
 
     public Mono<ServerResponse> getAllAccounts(ServerRequest request) {
@@ -223,8 +171,10 @@ public class RestAccount {
                 .flatMap(accounts -> ServerResponse.ok()
                         .contentType(MediaType.APPLICATION_JSON)
                         .bodyValue(accounts))
+                .switchIfEmpty(ServerResponse.status(HttpStatus.NOT_FOUND)
+                        .bodyValue("No existen cuentas"))
                 .onErrorResume(e -> ServerResponse.status(HttpStatus.BAD_REQUEST)
-                        .bodyValue(e.getMessage()));
+                        .bodyValue("Error recuperando ciuentas"));
     }
 
     public Mono<ServerResponse> getAccountByNumber(ServerRequest request) {
@@ -233,8 +183,8 @@ public class RestAccount {
                 .flatMap(response -> ServerResponse.ok()
                         .contentType(MediaType.APPLICATION_JSON)
                         .bodyValue(response))
-                .switchIfEmpty(ServerResponse.status(HttpStatus.NOT_FOUND)
-                        .bodyValue("La cuenta no existe"));
+                .onErrorResume(e -> ServerResponse.status(HttpStatus.NOT_FOUND)
+                        .bodyValue("La cuenta con el ID  no existe"));
     }
 
     public Mono<ServerResponse> updateAccount(ServerRequest request) {
@@ -244,6 +194,8 @@ public class RestAccount {
                         .contentType(MediaType.APPLICATION_JSON)
                         .bodyValue(response))
                 .onErrorResume(e -> ServerResponse.status(HttpStatus.BAD_REQUEST)
-                        .bodyValue(e.getMessage()));
+                        .bodyValue("Error la  cuenta no fue actualizada"));
     }
 }
+
+

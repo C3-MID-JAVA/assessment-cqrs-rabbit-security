@@ -1,9 +1,10 @@
 package ec.com.sofka.handlers;
+import ec.com.sofka.CuentaNoEncontradaException;
 import ec.com.sofka.commands.usecases.CreateTransactionUseCase;
 import ec.com.sofka.data.transaction.TransactionRequestDTO;
 import ec.com.sofka.data.transaction.TransactionResponseDTO;
 import ec.com.sofka.enums.TypeTransaction;
-import ec.com.sofka.exceptions.CuentaNoEncontradaException;
+
 import ec.com.sofka.gateway.dto.AccountDTO;
 import ec.com.sofka.queries.query.GetAccountQuery;
 import ec.com.sofka.queries.responses.GetAccountResponse;

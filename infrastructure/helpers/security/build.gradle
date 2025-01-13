@@ -1,0 +1,14 @@
+dependencies {
+
+    implementation project(':mongo-repository')
+    implementation project(':authentication')
+    implementation project(":exceptions")
+    //Librerias Agregadas
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'io.jsonwebtoken:jjwt:0.12.6'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
