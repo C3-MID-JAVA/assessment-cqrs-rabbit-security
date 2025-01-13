@@ -42,7 +42,7 @@ public class AuthHandler {
                 new CreateUserCommand(
                         userReqDTO.getUsername(),
                         passwordEncoder.encode(userReqDTO.getPassword()),
-                        ROLE.ADMIN.name()
+                        userReqDTO.getRoles()
                 )
         ).map(res -> new CreateUserRequest(res.getUsername(), res.getPassword(), res.getRoles()));
     }
