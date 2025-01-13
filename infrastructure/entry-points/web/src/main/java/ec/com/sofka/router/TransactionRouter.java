@@ -3,13 +3,9 @@ package ec.com.sofka.router;
 import ec.com.sofka.ErrorResponse;
 import ec.com.sofka.data.*;
 import ec.com.sofka.globalexceptions.GlobalErrorHandler;
-import ec.com.sofka.handler.AccountHandler;
 import ec.com.sofka.handler.TransactionHandler;
-import ec.com.sofka.mapper.AccountDTOMapper;
 import ec.com.sofka.service.ValidationService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
@@ -27,10 +23,7 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.math.BigDecimal;
-
 import static org.springframework.web.reactive.function.server.RequestPredicates.*;
-import static org.springframework.web.reactive.function.server.RequestPredicates.GET;
 
 @Configuration
 public class TransactionRouter {
@@ -47,7 +40,7 @@ public class TransactionRouter {
 
 
     @Bean
-    @RouterOperations({/*
+    @RouterOperations({
             @RouterOperation(
                     path = "/api/v1/transactions/accountNumber",
                     operation = @Operation(
@@ -60,7 +53,7 @@ public class TransactionRouter {
                                     required = true,
                                     content = @Content(
                                             mediaType = "application/json",
-                                            schema = @Schema(implementation = AccountReqByIdDTO.class)
+                                            schema = @Schema(implementation = AccountReqByElementDTO.class)
                                     )
                             ),
                             responses = {
@@ -76,8 +69,7 @@ public class TransactionRouter {
                                     )
                             }
                     )
-            ),*/
-
+            ),
             @RouterOperation(
                     path = "/api/v1/transactions/deposit",
                     operation = @Operation(
@@ -141,7 +133,7 @@ public class TransactionRouter {
         return RouterFunctions
                 .route(POST("/api/v1/transactions/deposit").and(accept(MediaType.APPLICATION_JSON)), this::createDeposit)
                 .andRoute(POST("/api/v1/transactions/withdrawal").and(accept(MediaType.APPLICATION_JSON)), this::createWithDrawal)
-                //.andRoute(POST("/api/v1/transactions/accountNumber").and(accept(MediaType.APPLICATION_JSON)), this::getTransactionByAccountNumber)
+                .andRoute(POST("/api/v1/transactions/accountNumber").and(accept(MediaType.APPLICATION_JSON)), this::getTransactionByAccountNumber)
                 ;
     }
 
@@ -171,15 +163,17 @@ public class TransactionRouter {
 
 
     public Mono<ServerResponse> getTransactionByAccountNumber(ServerRequest request) {
-        return request.bodyToMono(AccountReqByIdDTO.class)
-                .doOnNext(dto -> {
-                })
-                .flatMap(handler::getTransactionByAccountNumber)
-                .flatMap(accountResponseDTO -> ServerResponse
-                        .status(HttpStatus.OK)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .bodyValue(accountResponseDTO))
+        return request.bodyToMono(AccountReqByElementDTO.class)
+                .flatMapMany(handler::getTransactionByAccountNumber)
+                .collectList()
+                .flatMap(transactionResponses ->
+                        ServerResponse
+                                .status(HttpStatus.OK)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .bodyValue(transactionResponses)
+                )
                 .onErrorResume(ex -> globalErrorHandler.handleException(request.exchange(), ex));
     }
+
 
 }

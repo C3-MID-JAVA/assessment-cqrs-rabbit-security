@@ -9,6 +9,7 @@ import ec.com.sofka.appservice.gateway.dto.AccountDTO;
 import ec.com.sofka.appservice.mapper.Mapper;
 import ec.com.sofka.appservice.queries.query.GetByElementQuery;
 import ec.com.sofka.appservice.commands.UpdateAccountCommand;
+import ec.com.sofka.appservice.queries.query.GetByQuery;
 import ec.com.sofka.appservice.queries.responses.TransactionResponse;
 import ec.com.sofka.appservice.queries.usecases.GetAccountByAccountNumberUseCase;
 import ec.com.sofka.appservice.gateway.IEventStore;
@@ -51,7 +52,7 @@ public class ProcessTransactionUseCase {
     }
 
     public Mono<TransactionResponse> apply(CreateTransactionCommand cmd, OperationType operationType) {
-        GetByElementQuery accountNumberRequest = new GetByElementQuery(cmd.getCustomerId(), cmd.getAccountNumber());
+        GetByQuery accountNumberRequest = new GetByQuery(cmd.getAccountNumber());
         return getAccountByNumberUseCase.get(accountNumberRequest)
                 .switchIfEmpty(Mono.error(new ConflictException("Account not found")))
                 .flatMap(queryResponse -> {
@@ -105,8 +106,8 @@ public class ProcessTransactionUseCase {
                                                     .map(uncommittedEvents -> {
                                                         customer.markEventsAsCommitted();
                                                         return new TransactionResponse(
-                                                                cmd.getAggregateId(),
                                                                 customer.getId().getValue(),
+                                                                cmd.getCustomerId(),
                                                                 cmd.getAccountNumber(),
                                                                 strategy.getAmount(),
                                                                 cmd.getAmount(),

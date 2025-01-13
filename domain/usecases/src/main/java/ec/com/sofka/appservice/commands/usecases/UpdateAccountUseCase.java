@@ -52,10 +52,10 @@ public class UpdateAccountUseCase implements IUseCase<UpdateAccountCommand, Upda
                                             return Mono.just(new UpdateAccountResponse(
                                                     request.getAggregateId(),
                                                     customer.getAccount().getId().getValue(),
-                                                    customer.getAccount().getAccountNumber().getValue(),
-                                                    customer.getAccount().getOwner().getValue(),
-                                                    customer.getAccount().getStatus().getValue(),
-                                                    customer.getAccount().getBalance().getValue()
+                                                    request.getNumber(),
+                                                    request.getCustomerName(),
+                                                    request.getStatus(),
+                                                    request.getBalance()
                                             ));
                                         }));
                             });

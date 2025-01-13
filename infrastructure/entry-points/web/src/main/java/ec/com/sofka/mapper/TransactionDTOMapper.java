@@ -15,6 +15,17 @@ public class TransactionDTOMapper {
     public static TransactionResponseDTO toTransactionResponseDTO(TransactionResponse transactionResponse) {
         return new TransactionResponseDTO(
                 transactionResponse.getTransactionId(),
+                transactionResponse.getCustomerId(),
+                transactionResponse.getTransactionCost(),
+                transactionResponse.getAmount(),
+                transactionResponse.getTransactionDate(),
+                transactionResponse.getTransactionType()
+        );
+    }
+
+    public static TransactionResponseDTO toListTransactionResponseDTO(TransactionResponse transactionResponse) {
+        return new TransactionResponseDTO(
+                transactionResponse.getTransactionId(),
                 transactionResponse.getAccountId(),
                 transactionResponse.getTransactionCost(),
                 transactionResponse.getAmount(),

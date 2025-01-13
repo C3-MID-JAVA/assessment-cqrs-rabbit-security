@@ -1,15 +1,13 @@
 package ec.com.sofka.router;
 
 import ec.com.sofka.ErrorResponse;
-import ec.com.sofka.data.AccountReqByIdDTO;
+import ec.com.sofka.data.AccountReqByElementDTO;
 import ec.com.sofka.data.AccountRequestDTO;
 import ec.com.sofka.data.AccountResponseDTO;
 import ec.com.sofka.globalexceptions.GlobalErrorHandler;
 import ec.com.sofka.handler.AccountHandler;
 import ec.com.sofka.service.ValidationService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
@@ -22,8 +20,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.server.*;
 import reactor.core.publisher.Mono;
-
-import java.math.BigDecimal;
 
 import static org.springframework.web.reactive.function.server.RequestPredicates.*;
 
@@ -43,7 +39,7 @@ public class AccountRouter {
     @Bean
     @RouterOperations({
             @RouterOperation(
-                    path = "/api/v1//accounts",
+                    path = "/api/v1/accounts",
                     operation = @Operation(
                             tags = {"Accounts"},
                             operationId = "create",
@@ -112,7 +108,7 @@ public class AccountRouter {
                                     required = false,
                                     content = @Content(
                                             mediaType = "application/json",
-                                            schema = @Schema(implementation = AccountReqByIdDTO.class)
+                                            schema = @Schema(implementation = AccountReqByElementDTO.class)
                                     )
                             ),
                             responses = {
@@ -157,7 +153,7 @@ public class AccountRouter {
                                     required = true,
                                     content = @Content(
                                             mediaType = "application/json",
-                                            schema = @Schema(implementation = AccountReqByIdDTO.class)
+                                            schema = @Schema(implementation = AccountReqByElementDTO.class)
                                     )
                             ),
                             responses = {
@@ -181,7 +177,7 @@ public class AccountRouter {
                 .andRoute(POST("/api/v1/update").and(accept(MediaType.APPLICATION_JSON)), this::updateAccount)
                 .andRoute(POST("/api/v1/accounts/accountNumber").and(accept(MediaType.APPLICATION_JSON)), this::getAccountByAccountNumber)
                 .andRoute(GET("/api/v1/accounts/getAll"), this::listAccounts)
-                //.andRoute(POST("/api/v1//accounts/accountId").and(accept(MediaType.APPLICATION_JSON)), this::getAccountById)
+                .andRoute(POST("/api/v1/accounts/accountId").and(accept(MediaType.APPLICATION_JSON)), this::getAccountById)
         ;
     }
 
@@ -209,9 +205,7 @@ public class AccountRouter {
 
 
     public Mono<ServerResponse> getAccountByAccountNumber(ServerRequest request) {
-        return request.bodyToMono(AccountReqByIdDTO.class)
-                .doOnNext(dto -> {
-                })
+        return request.bodyToMono(AccountReqByElementDTO.class)
                 .flatMap(handler::getAccountByNumber)
                 .flatMap(accountResponseDTO -> ServerResponse
                         .status(HttpStatus.OK)
@@ -222,9 +216,7 @@ public class AccountRouter {
 
 
     public Mono<ServerResponse> getAccountById(ServerRequest request) {
-        return request.bodyToMono(AccountReqByIdDTO.class)
-                .doOnNext(dto -> {
-                })
+        return request.bodyToMono(AccountReqByElementDTO.class)
                 .flatMap(handler::getAccountById)
                 .flatMap(accountResponseDTO -> ServerResponse
                         .status(HttpStatus.OK)

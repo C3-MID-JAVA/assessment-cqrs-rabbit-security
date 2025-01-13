@@ -2,17 +2,16 @@ package ec.com.sofka.handler;
 
 import ec.com.sofka.appservice.commands.CreateAccountCommand;
 import ec.com.sofka.appservice.queries.query.GetByElementQuery;
-import ec.com.sofka.appservice.commands.UpdateAccountCommand;
 import ec.com.sofka.appservice.commands.usecases.CreateAccountUseCase;
 import ec.com.sofka.appservice.commands.usecases.DeleteAccountUseCase;
 import ec.com.sofka.appservice.commands.usecases.UpdateAccountUseCase;
+import ec.com.sofka.appservice.queries.query.GetByQuery;
 import ec.com.sofka.appservice.queries.usecases.GetAccountByAccountNumberUseCase;
 import ec.com.sofka.appservice.queries.usecases.GetAccountByIdUseCase;
 import ec.com.sofka.appservice.queries.usecases.GetAllAccountsUseCase;
-import ec.com.sofka.data.AccountReqByIdDTO;
+import ec.com.sofka.data.AccountReqByElementDTO;
 import ec.com.sofka.data.AccountRequestDTO;
 import ec.com.sofka.data.AccountResponseDTO;
-import ec.com.sofka.generics.utils.QueryResponse;
 import ec.com.sofka.mapper.AccountDTOMapper;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
@@ -52,31 +51,30 @@ public class AccountHandler {
                 .flatMapMany(queryResponse -> Flux.fromIterable(
                         queryResponse.getMultipleResults()
                 ))
-                .map(AccountDTOMapper::accountResponsetoAccountResponseDTO);
+                .map(AccountDTOMapper::accResponsetoAccountResponseDTO);
     }
 
-    public Mono<AccountResponseDTO> getAccountByNumber(AccountReqByIdDTO request) {
+    public Mono<AccountResponseDTO> getAccountByNumber(AccountReqByElementDTO request) {
         return getAccountByAccountNumberUseCase.get(
-                new GetByElementQuery(
-                        request.getCustomerId(),
+                new GetByQuery(
                         request.getAccountNumber()
                 ))
                 .flatMap(queryResponse -> Mono.justOrEmpty(
                         queryResponse.getSingleResult()
                 ))
-                .map(AccountDTOMapper::accountResponsetoAccountResponseDTO);
+                .map(AccountDTOMapper::accResponsetoAccountResponseDTO);
     }
 
-    public Mono<AccountResponseDTO> getAccountById(AccountReqByIdDTO request) {
+    public Mono<AccountResponseDTO> getAccountById(AccountReqByElementDTO request) {
         return getAccountByIdUseCase.get(
                 new GetByElementQuery(
                         request.getCustomerId(),
-                        request.getCustomerId()
+                        request.getAccountId()
                 ))
                 .flatMap(queryResponse -> Mono.justOrEmpty(
                         queryResponse.getSingleResult()
                 ))
-                .map(AccountDTOMapper::accountResponsetoAccountResponseDTO);
+                .map(AccountDTOMapper::accResponsetoAccountResponseDTO);
     }
 
 

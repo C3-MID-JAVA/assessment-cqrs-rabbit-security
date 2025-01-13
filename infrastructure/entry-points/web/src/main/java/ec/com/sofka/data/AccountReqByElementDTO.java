@@ -1,15 +1,14 @@
 package ec.com.sofka.data;
 
-import jakarta.validation.constraints.NotNull;
-
-public class AccountReqByIdDTO {
+public class AccountReqByElementDTO {
     private String customerId;
     private String accountNumber;
-
+    private String accountId;
     // Constructor
-    public AccountReqByIdDTO(String customerId, String accountNumber) {
+    public AccountReqByElementDTO(String customerId, String accountNumber, String accountId) {
         this.customerId = customerId;
         this.accountNumber = accountNumber;
+        this.accountId = accountId;
     }
 
     // Getters y setters
@@ -17,16 +16,24 @@ public class AccountReqByIdDTO {
         return customerId;
     }
 
-    public String getAccountNumber() {
-        return accountNumber;
-    }
-
     public void setCustomerId(String customerId) {
         this.customerId = customerId;
     }
 
+    public String getAccountNumber() {
+        return accountNumber;
+    }
+
     public void setAccountNumber(String accountNumber) {
         this.accountNumber = accountNumber;
+    }
+
+    public String getAccountId() {
+        return accountId;
+    }
+
+    public void setAccountId(String accountId) {
+        this.accountId = accountId;
     }
 }
 

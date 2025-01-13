@@ -8,5 +8,5 @@ import reactor.core.publisher.Mono;
 public interface ITransactionRepository {
     Flux<TransactionDTO> findAll();
     Mono<TransactionDTO> save(TransactionDTO transaction);
-    Mono<TransactionDTO> findById(String id);
+    Flux<TransactionDTO> findAllTransactionById(String id);
 }

@@ -30,6 +30,21 @@ public class TransactionResponse {
         this.transactionType = transactionType;
     }
 
+    public TransactionResponse(String transactionId,
+                               String accountId,
+                               BigDecimal transactionCost,
+                               BigDecimal amount,
+                               LocalDateTime transactionDate,
+                               TransactionType transactionType) {
+        this.customerId = null;
+        this.transactionId = transactionId;
+        this.accountId = accountId;
+        this.transactionCost = transactionCost;
+        this.amount = amount;
+        this.transactionDate = transactionDate;
+        this.transactionType = transactionType;
+    }
+
     public String getCustomerId() {
         return customerId;
     }

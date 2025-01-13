@@ -13,6 +13,8 @@ import ec.com.sofka.generics.utils.QueryResponse;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.NoSuchElementException;
+
 public class GetAccountByIdUseCase implements IUseCaseGet<GetByElementQuery, AccountResponse> {
 
     private final IAccountRepository repository;
@@ -24,27 +26,18 @@ public class GetAccountByIdUseCase implements IUseCaseGet<GetByElementQuery, Acc
 
     @Override
     public Mono<QueryResponse<AccountResponse>> get(GetByElementQuery request) {
-        return eventRepository.findAggregate(request.getAggregateId())
-                .collectList()
-                .flatMap(events -> {
-                    if (events.isEmpty()) {
-                        return Mono.error(new ConflictException("No events found for the given aggregate ID."));
-                    }
-                    return Customer.from(request.getAggregateId(), Flux.fromIterable(events))
-                            .flatMap(customer -> {
-                                return repository.findById(customer.getAccount().getAccountNumber().getValue())
-                                        .switchIfEmpty(Mono.error(new ConflictException("Account not found by id.")))
-                                        .map(accountDTO -> new AccountResponse(
-                                                request.getAggregateId(),
-                                                accountDTO.getAccountId(),
-                                                accountDTO.getAccountNumber(),
-                                                accountDTO.getName(),
-                                                accountDTO.getBalance(),
-                                                accountDTO.getStatus()
-                                        ))
-                                        .map(QueryResponse::ofSingle);
-                            });
-                });
+
+        return repository.findById(request.getElement())
+                .switchIfEmpty(Mono.error(new NoSuchElementException("Account not found by id.")))
+                .map(
+                        accountDTO -> new AccountResponse(
+                                accountDTO.getAccountId(),
+                                accountDTO.getAccountNumber(),
+                                accountDTO.getName(),
+                                accountDTO.getBalance(),
+                                accountDTO.getStatus()
+                        ))
+                .map(QueryResponse::ofSingle);
     }
 
 }

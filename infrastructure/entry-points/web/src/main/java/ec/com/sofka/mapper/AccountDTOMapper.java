@@ -30,6 +30,16 @@ public class AccountDTOMapper {
         );
     }
 
+    public static AccountResponseDTO accResponsetoAccountResponseDTO(AccountResponse response) {
+        return new AccountResponseDTO(
+                response.getAccountId(),
+                response.getName(),
+                response.getAccountNumber(),
+                response.getBalance(),
+                response.getStatus()
+        );
+    }
+
     // Convierte AccountRequestDTO a UpdateAccountCommand
     public static UpdateAccountCommand accountRequestDTOtoUpdateAccountCommand(AccountRequestDTO requestDTO) {
         return new UpdateAccountCommand(

@@ -1,6 +1,9 @@
 package ec.com.sofka.data;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import java.math.BigDecimal;
+@JsonInclude(JsonInclude.Include.NON_NULL)
 
 public class AccountResponseDTO {
     public String customerId;
@@ -17,6 +20,14 @@ public class AccountResponseDTO {
 
     public AccountResponseDTO(String customerId, String accountId, String owner, String accountNumber, BigDecimal balance, String status) {
         this.customerId = customerId;
+        this.accountId = accountId;
+        this.owner = owner;
+        this.accountNumber = accountNumber;
+        this.balance = balance;
+        this.status = status;
+    }
+
+    public AccountResponseDTO(String accountId, String owner, String accountNumber, BigDecimal balance, String status) {
         this.accountId = accountId;
         this.owner = owner;
         this.accountNumber = accountNumber;

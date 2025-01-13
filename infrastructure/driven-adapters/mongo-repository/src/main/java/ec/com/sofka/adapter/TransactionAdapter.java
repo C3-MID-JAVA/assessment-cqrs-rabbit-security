@@ -1,6 +1,8 @@
 package ec.com.sofka.adapter;
 
 import ec.com.sofka.appservice.gateway.dto.TransactionDTO;
+import ec.com.sofka.database.account.IMongoAccountRepository;
+import ec.com.sofka.mapper.AccountMapper;
 import ec.com.sofka.transaction.Transaction;
 import ec.com.sofka.database.account.IMongoTransactionRepository;
 import ec.com.sofka.appservice.gateway.ITransactionRepository;
@@ -11,12 +13,14 @@ import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.NoSuchElementException;
+
 @Repository
 public class TransactionAdapter implements ITransactionRepository {
     private final IMongoTransactionRepository repository;
     private final ReactiveMongoTemplate bankMongoTemplate;
 
-    public TransactionAdapter(IMongoTransactionRepository repository, @Qualifier("accountMongoTemplate") ReactiveMongoTemplate bankMongoTemplate) {
+    public TransactionAdapter(IMongoTransactionRepository repository,  @Qualifier("accountMongoTemplate") ReactiveMongoTemplate bankMongoTemplate) {
         this.repository = repository;
         this.bankMongoTemplate = bankMongoTemplate;
     }
@@ -33,8 +37,9 @@ public class TransactionAdapter implements ITransactionRepository {
     }
 
     @Override
-    public Mono<TransactionDTO> findById(String id) {
-        return repository.findById(id).map(TransactionMapper::transactionEntityToTransaction);
+    public Flux<TransactionDTO> findAllTransactionById(String accountNumber) {
+        return repository.findAllByAccountId(accountNumber)
+                .map(TransactionMapper::transactionEntityToTransaction);
     }
 
 }

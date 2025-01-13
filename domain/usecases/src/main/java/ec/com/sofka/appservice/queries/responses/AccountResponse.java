@@ -22,6 +22,15 @@ public class AccountResponse {
         this.status = status;
     }
 
+    public AccountResponse(String accountId, String accountNumber, String name, BigDecimal balance, String status) {
+        this.accountId = accountId;
+        this.accountNumber = accountNumber;
+        this.name = name;
+        this.balance = balance;
+        this.status = status;
+        customerId = null;
+    }
+
     public String getAccountId() {
         return accountId;
     }

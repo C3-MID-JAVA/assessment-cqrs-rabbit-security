@@ -11,6 +11,12 @@ public class GetByElementQuery extends Query {
         this.element = element;
     }
 
+    public GetByElementQuery(
+                             final String element) {
+        super(null);
+        this.element = element;
+    }
+
     public String getElement() {
         return element;
     }
