@@ -47,7 +47,7 @@ public class TransactionRouter {
 
 
     @Bean
-    @RouterOperations({
+    @RouterOperations({/*
             @RouterOperation(
                     path = "/api/v1/transactions/accountNumber",
                     operation = @Operation(
@@ -76,7 +76,7 @@ public class TransactionRouter {
                                     )
                             }
                     )
-            ),
+            ),*/
 
             @RouterOperation(
                     path = "/api/v1/transactions/deposit",
@@ -141,7 +141,8 @@ public class TransactionRouter {
         return RouterFunctions
                 .route(POST("/api/v1/transactions/deposit").and(accept(MediaType.APPLICATION_JSON)), this::createDeposit)
                 .andRoute(POST("/api/v1/transactions/withdrawal").and(accept(MediaType.APPLICATION_JSON)), this::createWithDrawal)
-                .andRoute(POST("/api/v1/transactions/accountNumber").and(accept(MediaType.APPLICATION_JSON)), this::getTransactionByAccountNumber);
+                //.andRoute(POST("/api/v1/transactions/accountNumber").and(accept(MediaType.APPLICATION_JSON)), this::getTransactionByAccountNumber)
+                ;
     }
 
 

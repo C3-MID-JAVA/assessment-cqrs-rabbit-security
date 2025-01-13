@@ -45,7 +45,7 @@ public class JWTAuthFilter implements WebFilter {
             var authoritiesClaims = jwtService.extractAllClaims(jwt).get("roles");
             var authorities =
                     authoritiesClaims != null ?
-                            AuthorityUtils.commaSeparatedStringToAuthorityList(authoritiesClaims.toString()) :
+                            AuthorityUtils.commaSeparatedStringToAuthorityList("ROLE_"+authoritiesClaims.toString()) :
                             AuthorityUtils.NO_AUTHORITIES;
 
             UserDetails userDetails =
