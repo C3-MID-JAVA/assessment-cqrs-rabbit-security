@@ -1,3 +1,15 @@
 dependencies {
     implementation project(':model')
+    implementation project(":helpers")
+
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
+    testImplementation 'org.mockito:mockito-core'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
+    testImplementation 'io.projectreactor:reactor-test'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
 }

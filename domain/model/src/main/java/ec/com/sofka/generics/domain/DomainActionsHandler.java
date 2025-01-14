@@ -1,13 +1,13 @@
 package ec.com.sofka.generics.domain;
 
-import ec.com.sofka.generics.interfaces.IEvent;
+import ec.com.sofka.generics.interfaces.IApplyEvent;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 
-//6. Generics creation to apply DDD: DomainActionsHandler
+
 public class DomainActionsHandler {
     private final List<DomainEvent> events = new LinkedList<>();
     private final Map<String, AtomicLong> versions = new ConcurrentHashMap<>();
@@ -22,14 +22,14 @@ public class DomainActionsHandler {
         actions.addAll(container.domainActions);
     }
 
-    public IEvent append(final DomainEvent event){
+    public IApplyEvent append(final DomainEvent event){
         events.add(event);
         return () -> apply(event);
     }
 
     private long increaseVersion(final DomainEvent event){
         final AtomicLong current = versions.get(event.getEventType());
-        final long newVersion = current != null ? current.incrementAndGet() : event.getVersion();
+        final long newVersion = current != null ? current.incrementAndGet():event.getVersion();
         versions.put(event.getEventType(), new AtomicLong(newVersion));
         return newVersion;
     }
@@ -39,7 +39,11 @@ public class DomainActionsHandler {
             action.accept(event);
             long version = increaseVersion(event);
             event.setVersion(version);
-        }catch(Exception ignored){}
+        }catch(Exception ignored){
+            if (!(ignored instanceof ClassCastException)) {
+                throw ignored;
+            }
+        }
     }
 
     private void apply(final DomainEvent event){
