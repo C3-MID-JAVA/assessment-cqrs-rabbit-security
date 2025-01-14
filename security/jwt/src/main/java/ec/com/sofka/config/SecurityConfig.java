@@ -23,7 +23,7 @@ public class SecurityConfig {
             ReactiveAuthenticationManager authManager
     ) throws Exception {
         return http
-                .csrf(ServerHttpSecurity.CsrfSpec::disable) // Deshabilitar CSRF
+                .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .authorizeExchange(exchanges -> exchanges
                         // Permitir acceso a Swagger UI, documentación y recursos estáticos
                         .pathMatchers("/swagger-ui.html", "/swagger-ui/**", "/webjars/**", "/v3/api-docs/**").permitAll()

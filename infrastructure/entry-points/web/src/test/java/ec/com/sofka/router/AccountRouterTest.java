@@ -1,5 +1,6 @@
 package ec.com.sofka.router;
 
+import ec.com.sofka.data.AccountReqByElementDTO;
 import ec.com.sofka.data.AccountRequestDTO;
 import ec.com.sofka.data.AccountResponseDTO;
 import ec.com.sofka.handler.AccountHandler;
@@ -9,23 +10,25 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import static org.mockito.ArgumentMatchers.any;
+import static org.hamcrest.Matchers.is;
 
 import java.math.BigDecimal;
 import java.util.List;
+import org.springframework.web.reactive.function.server.RouterFunction;
 
-import static java.util.EnumSet.allOf;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
-import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 class AccountRouterTest {
+
+    @Autowired
+    private WebTestClient webTestClient;
 
     @Mock
     private AccountHandler accountHandler;
@@ -39,116 +42,163 @@ class AccountRouterTest {
     @InjectMocks
     private AccountRouter accountRouter;
 
-    private WebTestClient webTestClient;
-
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
-        webTestClient = WebTestClient.bindToRouterFunction(accountRouter.accountRoutes()).build();
+        RouterFunction<ServerResponse> routerFunction = accountRouter.accountRoutes();
+        this.webTestClient = WebTestClient.bindToRouterFunction(routerFunction).build();
     }
 
     @Test
-    void testCreateAccount() {
+    void createAccount_ShouldReturnCreated() {
         // Arrange
-        AccountRequestDTO accountRequestDTO = new AccountRequestDTO("0123456789", new BigDecimal("5000.00"), "Anderson Zambrano");
-        AccountResponseDTO accountResponseDTO = new AccountResponseDTO("1", "0123456789", new BigDecimal("5000.00"), "Anderson Zambrano");
+        AccountRequestDTO requestDTO = new AccountRequestDTO("123", "0123456789", BigDecimal.valueOf(500), "John Doe", "active");
+        AccountResponseDTO responseDTO = new AccountResponseDTO("123", "accountId123", "John Doe", "0123456789", BigDecimal.valueOf(500), "active");
 
-        when(validationService.validate(any(), eq(AccountRequestDTO.class))).thenReturn(Mono.just(accountRequestDTO));
-        when(accountHandler.createAccount(accountRequestDTO)).thenReturn(Mono.just(accountResponseDTO));
+        when(validationService.validate(any(), eq(AccountRequestDTO.class))).thenReturn(Mono.just(requestDTO));
+        when(accountHandler.createAccount(any(AccountRequestDTO.class))).thenReturn(Mono.just(responseDTO));
 
-        // Act & Assert
+        // Act and Assert
         webTestClient.post()
-                .uri("/accounts")
-                .contentType(APPLICATION_JSON)
-                .bodyValue(accountRequestDTO)
+                .uri("/api/v1/accounts")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(requestDTO)
                 .exchange()
                 .expectStatus().isCreated()
-                .expectHeader().contentType(APPLICATION_JSON)
                 .expectBody()
-                .jsonPath("$.accountNumber").isEqualTo("0123456789")
-                .jsonPath("$.owner").isEqualTo("Anderson Zambrano")
-                .jsonPath("$.balance").isEqualTo(5000.00);
+                .jsonPath("$.accountId").isEqualTo("accountId123")
+                .jsonPath("$.owner").isEqualTo("John Doe")
+                .jsonPath("$.balance").isEqualTo(500);
     }
 
     @Test
-    void testGetAccountByAccountNumber() {
+    void createAccount_ShouldReturnBadRequest_WhenValidationFails() {
+        // Arrange
+        AccountRequestDTO requestDTO = new AccountRequestDTO("123", "123", BigDecimal.valueOf(-500), "John Doe", "active"); // Número de cuenta y saldo inválidos
+
+        when(validationService.validate(any(), eq(AccountRequestDTO.class))).thenReturn(Mono.error(new IllegalArgumentException("Invalid data")));
+
+        // Act and Assert
+        webTestClient.post()
+                .uri("/api/v1/accounts")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(requestDTO)
+                .exchange()
+                .expectStatus().isBadRequest() // 400
+                .expectBody()
+                .jsonPath("$.message").value(is("Invalid data")); // Mensaje de error esperado
+    }
+
+
+    @Test
+    void createAccount_ShouldReturnInternalServerError_WhenHandlerFails() {
+        // Arrange
+        AccountRequestDTO requestDTO = new AccountRequestDTO("123", "0123456789", BigDecimal.valueOf(500), "John Doe", "active");
+
+        when(validationService.validate(any(), eq(AccountRequestDTO.class))).thenReturn(Mono.just(requestDTO));
+        when(accountHandler.createAccount(any(AccountRequestDTO.class))).thenReturn(Mono.error(new RuntimeException("Internal server error")));
+
+        // Act and Assert
+        webTestClient.post()
+                .uri("/api/v1/accounts")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(requestDTO)
+                .exchange()
+                .expectStatus().is5xxServerError() // 500
+                .expectBody()
+                .jsonPath("$.message").value(is("Internal server error")); // Mensaje de error esperado
+    }
+
+
+    @Test
+    void updateAccount_ShouldReturnCreated() {
+        // Arrange
+        AccountRequestDTO requestDTO = new AccountRequestDTO("123", "0123456789", BigDecimal.valueOf(500), "John Doe", "active");
+        AccountResponseDTO responseDTO = new AccountResponseDTO("123", "accountId123", "John Doe", "0123456789", BigDecimal.valueOf(500), "active");
+
+        when(validationService.validate(any(), eq(AccountRequestDTO.class))).thenReturn(Mono.just(requestDTO));
+        when(accountHandler.updateAccount(any(AccountRequestDTO.class))).thenReturn(Mono.just(responseDTO));
+
+        // Act and Assert
+        webTestClient.post()
+                .uri("/api/v1/update")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(requestDTO)
+                .exchange()
+                .expectStatus().isCreated()
+                .expectBody()
+                .jsonPath("$.accountId").isEqualTo("accountId123")
+                .jsonPath("$.owner").isEqualTo("John Doe")
+                .jsonPath("$.balance").isEqualTo(500);
+    }
+
+    @Test
+    void getAccountByAccountNumber_ShouldReturnOk() {
         // Arrange
         String accountNumber = "0123456789";
-        AccountResponseDTO accountResponseDTO = new AccountResponseDTO("1", accountNumber, new BigDecimal("5000.00"), "Anderson Zambrano");
+        AccountResponseDTO responseDTO = new AccountResponseDTO("123", "accountId123", "John Doe", "0123456789", BigDecimal.valueOf(500), "active");
 
-        when(accountHandler.getAccountByAccountNumber(accountNumber)).thenReturn(Mono.just(accountResponseDTO));
+        when(accountHandler.getAccountByNumber(any(AccountReqByElementDTO.class))).thenReturn(Mono.just(responseDTO));
 
-        // Act & Assert
-        webTestClient.get()
-                .uri("/accounts/accountNumber/{accountNumber}", accountNumber)
+        // Act and Assert
+        webTestClient.post()
+                .uri("/api/v1/accounts/accountNumber")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(new AccountReqByElementDTO("123", accountNumber, null))
                 .exchange()
                 .expectStatus().isOk()
-                .expectHeader().contentType(APPLICATION_JSON)
                 .expectBody()
-                .jsonPath("$.accountNumber").isEqualTo(accountNumber)
-                .jsonPath("$.owner").isEqualTo("Anderson Zambrano")
-                .jsonPath("$.balance").isEqualTo(5000.00);
+                .jsonPath("$.accountId").isEqualTo("accountId123")
+                .jsonPath("$.owner").isEqualTo("John Doe")
+                .jsonPath("$.balance").isEqualTo(500);
     }
 
     @Test
-    void testListAccounts() {
+    void getAccountByAccountNumber_ShouldReturnNotFound_WhenAccountDoesNotExist() {
         // Arrange
-        AccountResponseDTO accountResponseDTO = new AccountResponseDTO("1", "0123456789", new BigDecimal("5000.00"), "Anderson Zambrano");
-        AccountResponseDTO accountResponseDTO2 = new AccountResponseDTO("1", "0123456789", new BigDecimal("5000.00"), "Anderson Zambrano");
+        String accountNumber = "9999999999"; // Cuenta no existente
+        when(accountHandler.getAccountByNumber(any(AccountReqByElementDTO.class))).thenReturn(Mono.empty()); // No se encuentra la cuenta
 
-        when(accountHandler.getAccounts()).thenReturn(Flux.just(accountResponseDTO,accountResponseDTO2));
-
-        // Act & Assert
-        webTestClient.get()
-                .uri("/accounts/getAll")
+        // Act and Assert
+        webTestClient.post()
+                .uri("/api/v1/accounts/accountNumber")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(new AccountReqByElementDTO("123", accountNumber, null))
                 .exchange()
-                .expectStatus().isOk()
-                .expectHeader().contentType(APPLICATION_JSON)
-                .expectBodyList(AccountResponseDTO.class)
-                .hasSize(2)
-                .consumeWith(response -> {
-                    List<AccountResponseDTO> actualResponse = response.getResponseBody();
-                    assert actualResponse != null;
-                    assertEquals(accountResponseDTO.getAccountNumber(), actualResponse.get(0).getAccountNumber());
-                    assertEquals(accountResponseDTO2.getAccountNumber(), actualResponse.get(1).getAccountNumber());
-                });
-    }
-
-
-    @Test
-    void testGetAccountById() {
-        // Arrange
-        String accountId = "1";
-        AccountResponseDTO accountResponseDTO = new AccountResponseDTO(accountId, "0123456789", new BigDecimal("5000.00"), "Anderson Zambrano");
-        when(accountHandler.getAccountByAccountId(accountId)).thenReturn(Mono.just(accountResponseDTO));
-
-        // Act & Assert
-        webTestClient.get()
-                .uri("/accounts/{accountId}", accountId)
-                .exchange()
-                .expectStatus().isOk()
-                .expectHeader().contentType(APPLICATION_JSON)
+                .expectStatus().isNotFound() // 404
                 .expectBody()
-                .jsonPath("$.accountNumber").isEqualTo("0123456789")
-                .jsonPath("$.owner").isEqualTo("Anderson Zambrano")
-                .jsonPath("$.balance").isEqualTo(5000.00);
+                .jsonPath("$.message").value(is("Account not found")); // Mensaje de error esperado
     }
 
     @Test
-    void testGetAccountBalance() {
+    void listAccounts_ShouldReturnOk() {
         // Arrange
-        String accountId = "1";
-        BigDecimal balance = new BigDecimal("5000.00");
-        when(accountHandler.getCheckBalance(accountId)).thenReturn(Mono.just(balance));
+        AccountResponseDTO account1 = new AccountResponseDTO("123", "accountId123", "John Doe", "0123456789", BigDecimal.valueOf(500), "active");
+        AccountResponseDTO account2 = new AccountResponseDTO("124", "accountId124", "Jane Doe", "0123456790", BigDecimal.valueOf(1000), "active");
 
-        // Act & Assert
+        when(accountHandler.getAllAccounts()).thenReturn(Flux.fromIterable(List.of(account1, account2)));
+
+        // Act and Assert
         webTestClient.get()
-                .uri("/accounts/{accountId}/balance", accountId)
+                .uri("/api/v1/accounts/getAll")
                 .exchange()
                 .expectStatus().isOk()
-                .expectHeader().contentType(APPLICATION_JSON)
                 .expectBody()
-                .jsonPath("$").isEqualTo(5000.00);
+                .jsonPath("$[0].accountId").isEqualTo("accountId123")
+                .jsonPath("$[1].accountId").isEqualTo("accountId124");
     }
+    @Test
+    void listAccounts_ShouldReturnInternalServerError_WhenHandlerFails() {
+        // Arrange
+        when(accountHandler.getAllAccounts()).thenReturn(Flux.error(new RuntimeException("Internal server error")));
+
+        // Act and Assert
+        webTestClient.get()
+                .uri("/api/v1/accounts/getAll")
+                .exchange()
+                .expectStatus().is5xxServerError() // 500
+                .expectBody()
+                .jsonPath("$.message").value(is("Internal server error")); // Mensaje de error esperado
+    }
+
 
 }

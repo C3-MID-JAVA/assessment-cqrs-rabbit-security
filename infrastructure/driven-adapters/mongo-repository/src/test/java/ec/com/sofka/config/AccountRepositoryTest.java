@@ -5,6 +5,7 @@ import ec.com.sofka.database.account.IMongoAccountRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
+import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.mongo.AutoConfigureDataMongo;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
@@ -28,6 +29,7 @@ class AccountRepositoryTest {
 
     @BeforeEach
     void setUp() {
+        MockitoAnnotations.openMocks(this);
         account = new AccountEntity("1", "John Doe", "12345678", BigDecimal.valueOf(1000.50), "ACTIVE");
         repository.deleteAll().block(); // Limpiar la base de datos antes de cada prueba
     }

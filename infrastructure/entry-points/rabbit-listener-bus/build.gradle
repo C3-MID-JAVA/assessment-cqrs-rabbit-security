@@ -4,4 +4,9 @@ dependencies {
     implementation project(':usecases')
     implementation project(':model')
     implementation project(':rabbit-info-bus')
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+tasks.named('test') {
+    useJUnitPlatform()
 }

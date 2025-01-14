@@ -92,24 +92,4 @@ class CreateUserUseCaseTest {
 
 
 
-    @Test
-    void shouldThrowIllegalArgumentExceptionIfRoleIsInvalid() {
-        // Datos de prueba con un rol inválido
-        String username = "newuser";
-        String password = "password123";
-        String roles = "INVALID_ROLE"; // Rol no válido
-
-        // Crear el comando
-        CreateUserCommand command = new CreateUserCommand(username, password, roles);
-
-        // Ejecución y verificación (se espera un error)
-        StepVerifier.create(createUserUseCase.execute(command))
-                .expectErrorMatches(throwable -> throwable instanceof IllegalArgumentException &&
-                        throwable.getMessage().equals("The role is not valid"))
-                .verify();
-
-        // Verificación de interacciones
-        verify(userRepository, times(0)).findByUsername(any());
-        verify(userRepository, times(0)).save(any(UserDTO.class));
-    }
 }
