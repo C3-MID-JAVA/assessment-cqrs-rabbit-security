@@ -1,4 +1,4 @@
-rootProject.name = 'assessment-cqrs-rabbit-security'
+rootProject.name = 'assessment-eda-es'
 
 include ':app-service'
 findProject(':app-service').projectDir = file('./applications/app-service')
@@ -16,14 +16,25 @@ include ':web'
 findProject(':web').projectDir = file('./infrastructure/entry-points/web')
 
 include ':serializer'
-findProject(':serializer').projectDir = file('./infrastructure/helpers/serializer')
-
-//Rabbitmq
-include ':app-logs'
-findProject(':app-logs').projectDir = file ('./applications/app-logs')
+findProject(':serializer').projectDir = file('./shared/serializer')
 
 include ':rabbit-info-bus'
 findProject(':rabbit-info-bus').projectDir = file('./infrastructure/driven-adapters/rabbit-info-bus')
 
 include ':rabbit-listener-bus'
 findProject(':rabbit-listener-bus').projectDir = file('./infrastructure/entry-points/rabbit-listener-bus')
+
+include ':app-consumer'
+findProject(':app-consumer').projectDir = file('./applications/app-consumer')
+
+include ':app-config'
+findProject(':app-config').projectDir = file('./shared/app-config')
+
+include ':app-security'
+findProject(':app-security').projectDir = file('./shared/app-security')
+
+include ':web-auth'
+findProject(':web-auth').projectDir = file('./infrastructure/entry-points/web-auth')
+
+include ':app-exception'
+findProject(':app-exception').projectDir = file('./shared/app-exception')

@@ -1,12 +1,8 @@
 package ec.com.sofka.generics.interfaces;
 
-import ec.com.sofka.generics.utils.Query;
-import ec.com.sofka.generics.utils.QueryResponse;
+import ec.com.sofka.generics.shared.QueryResponse;
+import org.reactivestreams.Publisher;
 
-import java.util.List;
-import java.util.Optional;
-
-public interface IUseCaseGet <Q extends Query, R> {
-    //R get(Q request); // For single result
-    QueryResponse<R> get(Q request);  // For multiple results
+public interface IUseCaseGet<R> {
+    Publisher<QueryResponse<R>> get();
 }
