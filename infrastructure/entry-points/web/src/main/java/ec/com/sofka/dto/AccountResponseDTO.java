@@ -3,24 +3,24 @@ package ec.com.sofka.dto;
 import java.math.BigDecimal;
 
 public class AccountResponseDTO {
-    private String customerId;
+    private String id;
     private String accountNumber;
     private BigDecimal balance;
     private String userId;
 
-    public AccountResponseDTO(String customerId, String accountNumber, BigDecimal balance, String userId) {
-        this.customerId = customerId;
+    public AccountResponseDTO(String id, String accountNumber, BigDecimal balance, String userId) {
+        this.id = id;
         this.accountNumber = accountNumber;
         this.balance = balance;
         this.userId = userId;
     }
 
-    public String getCustomerId() {
-        return customerId;
+    public String getId() {
+        return id;
     }
 
-    public void setCustomerId(String customerId) {
-        this.customerId = customerId;
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getAccountNumber() {

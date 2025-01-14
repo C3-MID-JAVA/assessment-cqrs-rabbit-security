@@ -5,9 +5,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.FilterType;
 
 @Configuration
-@ComponentScan( basePackages = "ec.com.sofka.account.queries",
+@ComponentScan( basePackages = "ec.com.sofka",
         includeFilters = {
-                @ComponentScan.Filter(type= FilterType.REGEX, pattern = "^.+UseCase$")
+                @ComponentScan.Filter(type= FilterType.REGEX, pattern = "^.+ViewUseCase$")
         })
 public class UseCaseConfig {
 }

@@ -66,6 +66,7 @@ public class Customer extends AggregateRoot<CustomerId> {
                 .concatMap(event -> Mono.just(event)
                         .doOnNext(e -> customer.addEvent(e).apply())
                 )
+                .doOnTerminate(customer::markEventsAsCommitted)
                 .then(Mono.just(customer));
     }
 }

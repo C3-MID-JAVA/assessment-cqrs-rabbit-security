@@ -1,22 +1,30 @@
 package ec.com.sofka.dto;
 
 public class UserResponseDTO {
-    private String customerId;
+    private String id;
     private String name;
     private String documentId;
+    private String customerId;
 
-    public UserResponseDTO(String customerId, String name, String documentId) {
-        this.customerId = customerId;
+    public UserResponseDTO(String id, String name, String documentId) {
+        this.id = id;
         this.name = name;
         this.documentId = documentId;
     }
 
-    public String getCustomerId() {
-        return customerId;
+    public UserResponseDTO(String id, String name, String documentId, String customerId) {
+        this.id = id;
+        this.name = name;
+        this.documentId = documentId;
+        this.customerId = customerId;
     }
 
-    public void setCustomerId(String customerId) {
-        this.customerId = UserResponseDTO.this.customerId;
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = UserResponseDTO.this.id;
     }
 
     public String getName() {
@@ -33,5 +41,13 @@ public class UserResponseDTO {
 
     public void setDocumentId(String documentId) {
         this.documentId = documentId;
+    }
+
+    public String getCustomerId() {
+        return customerId;
+    }
+
+    public void setCustomerId(String customerId) {
+        this.customerId = customerId;
     }
 }

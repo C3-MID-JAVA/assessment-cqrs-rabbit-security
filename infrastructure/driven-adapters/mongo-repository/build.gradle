@@ -1,6 +1,7 @@
 dependencies {
     implementation project (':usecases')
     implementation project(':model')
+    implementation project(':admin')
     implementation project (':serializer')
 
     implementation 'org.springframework.boot:spring-boot-starter-data-mongodb-reactive'

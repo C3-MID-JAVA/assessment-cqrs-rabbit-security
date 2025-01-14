@@ -57,5 +57,4 @@ public class TransactionCreated extends DomainEvent {
     public String getAccountId() {
         return accountId;
     }
-
 }

@@ -2,8 +2,8 @@ package ec.com.sofka.handler;
 
 import ec.com.sofka.dto.UserRequestDTO;
 import ec.com.sofka.mapper.UserMapper;
-import ec.com.sofka.user.CreateUserUseCase;
-import ec.com.sofka.user.GetAllUserUseCase;
+import ec.com.sofka.user.commands.usecases.CreateUserUseCase;
+import ec.com.sofka.user.queries.usecases.GetAllUserViewUseCase;
 import ec.com.sofka.validator.RequestValidator;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -16,19 +16,21 @@ import reactor.core.publisher.Mono;
 public class UserHandler {
 
     private final RequestValidator requestValidator;
-    private final GetAllUserUseCase getAllUseCase;
+    private final GetAllUserViewUseCase getAllUserViewUseCase;
     private final CreateUserUseCase createUserUseCase;
 
-    public UserHandler(RequestValidator requestValidator, GetAllUserUseCase getAllUseCase, CreateUserUseCase createUserUseCase) {
+    public UserHandler(RequestValidator requestValidator, GetAllUserViewUseCase getAllUserViewUseCase, CreateUserUseCase createUserUseCase) {
         this.requestValidator = requestValidator;
-        this.getAllUseCase = getAllUseCase;
+        this.getAllUserViewUseCase = getAllUserViewUseCase;
         this.createUserUseCase = createUserUseCase;
     }
 
     public Mono<ServerResponse> getAll(ServerRequest request) {
-        return getAllUseCase.execute()
-                .map(UserMapper::fromEntity)
-                .collectList()
+        return getAllUserViewUseCase.get()
+                .map(queryResponse -> queryResponse.getMultipleResults()
+                        .stream()
+                        .map(UserMapper::fromQueryEntity)
+                        .toList())
                 .flatMap(userResponseDTOs ->
                         ServerResponse
                                 .ok()

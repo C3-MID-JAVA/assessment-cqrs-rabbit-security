@@ -5,7 +5,7 @@ import ec.com.sofka.gateway.dto.UserDTO;
 
 public class UserMapperEntity {
     public static UserEntity toEntity(UserDTO userDTO){
-        return new UserEntity(userDTO.getName(), userDTO.getDocumentId());
+        return new UserEntity(userDTO.getId(), userDTO.getName(), userDTO.getDocumentId());
     }
 
     public static UserDTO fromEntity(UserEntity user){

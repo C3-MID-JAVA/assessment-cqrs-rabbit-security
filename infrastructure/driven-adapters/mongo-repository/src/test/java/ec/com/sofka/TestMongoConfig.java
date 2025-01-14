@@ -6,6 +6,6 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @EnableAutoConfiguration
-@ComponentScan(basePackages = "ex.com.sofka")
+@ComponentScan(basePackages = "ec.com.sofka.database")
 public class TestMongoConfig {
 }

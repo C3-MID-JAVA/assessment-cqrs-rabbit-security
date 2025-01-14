@@ -1,7 +1,5 @@
 package ec.com.sofka;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import ec.com.sofka.gateway.BusEvent;
 import ec.com.sofka.generics.domain.DomainEvent;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -12,16 +10,17 @@ import reactor.core.publisher.Mono;
 public class BusAdapter implements BusEvent {
 
     private final RabbitTemplate rabbitTemplate;
+    private final RabbitProperties rabbitProperties;
 
-    public BusAdapter(RabbitTemplate rabbitTemplate) {
+    public BusAdapter(RabbitTemplate rabbitTemplate, RabbitProperties rabbitProperties) {
         this.rabbitTemplate = rabbitTemplate;
+        this.rabbitProperties = rabbitProperties;
     }
 
     @Override
     public void sendEventAccountCreated(Mono<DomainEvent> event) {
         event.subscribe(accountCreated -> {
-                    if (!accountCreated.getEventType().equals("ACCOUNT_CREATED")) return;
-                    rabbitTemplate.convertAndSend("account.created.exchange", "account.created.event", accountCreated);
+                    rabbitTemplate.convertAndSend(rabbitProperties.getAccountExchange(), rabbitProperties.getAccountRoutingKey(), accountCreated);
                 }
         );
     }
@@ -29,24 +28,23 @@ public class BusAdapter implements BusEvent {
     @Override
     public void sendEventUserCreated(Mono<DomainEvent> event) {
         event.subscribe(userCreated -> {
-            if (!userCreated.getEventType().equals("USER_CREATED")) return;
-            rabbitTemplate.convertAndSend("user.created.exchange", "user.created.event", userCreated);
-        });
+                    rabbitTemplate.convertAndSend(rabbitProperties.getUserExchange(), rabbitProperties.getUserRoutingKey(), userCreated);
+                }
+        );
     }
 
+    @Override
     public void sendEventTransactionCreated(Mono<DomainEvent> event) {
         event.subscribe(transactionCreated -> {
-            if (!transactionCreated.getEventType().equals("TRANSACTION_CREATED")) return;
-            rabbitTemplate.convertAndSend("transaction.created.exchange", "transaction.created.event", transactionCreated);
+            rabbitTemplate.convertAndSend(rabbitProperties.getTransactionExchange(), rabbitProperties.getTransactionRoutingKey(), transactionCreated);
         });
     }
 
     @Override
-    public void sendEventBalanceUpdated(Mono<DomainEvent> event) {
-        event.subscribe(balanceUpdated -> {
-            if (!balanceUpdated.getEventType().equals("ACCOUNT_BALANCE_UPDATED")) return;
-            rabbitTemplate.convertAndSend("balance.updated.exchange", "balance.updated.event", balanceUpdated);
-        });
+    public void sendEventAccountUpdated(Mono<DomainEvent> event) {
+        event.subscribe(accountUpdated -> {
+                    rabbitTemplate.convertAndSend(rabbitProperties.getAccountUpdatedExchange(), rabbitProperties.getAccountUpdatedRoutingKey(), accountUpdated);
+                }
+        );
     }
-
 }

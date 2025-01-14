@@ -1,5 +1,6 @@
 package ec.com.sofka.config;
 
+import ec.com.sofka.RabbitProperties;
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -12,80 +13,80 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class RabbitConfig {
+    private final RabbitProperties rabbitProperties;
 
-    // Configuración para account
-    @Bean
-    public TopicExchange accountExchange() {
-        return new TopicExchange("account.created.exchange");
+    public RabbitConfig(RabbitProperties rabbitProperties) {
+        this.rabbitProperties = rabbitProperties;
     }
 
     @Bean
-    public Queue accountQueue() {
-        return new Queue("account.created.queue", true);
+    public TopicExchange accountCreatedExchange() {
+        return new TopicExchange(rabbitProperties.getAccountExchange());
     }
 
     @Bean
-    public Binding accountBinding() {
-        return BindingBuilder.bind(accountQueue())
-                .to(accountExchange())
-                .with("account.created.event");
-    }
-
-    // Configuración para createUser
-    @Bean
-    public TopicExchange createUserExchange() {
-        return new TopicExchange("user.created.exchange");
+    public Queue accountCreatedQueue() {
+        return new Queue(rabbitProperties.getAccountQueue(), true);
     }
 
     @Bean
-    public Queue createUserQueue() {
-        return new Queue("user.created.queue", true);
+    public Binding accountCreatedBinding() {
+        return BindingBuilder.bind(accountCreatedQueue())
+                .to(accountCreatedExchange())
+                .with(rabbitProperties.getAccountRoutingKey());
     }
 
     @Bean
-    public Binding createUserBinding() {
-        return BindingBuilder.bind(createUserQueue())
-                .to(createUserExchange())
-                .with("user.created.event");
-    }
-
-    // Configuración para transaction
-    @Bean
-    public TopicExchange transactionExchange() {
-        return new TopicExchange("transaction.created.exchange");
+    public TopicExchange accountUpdatedExchange() {
+        return new TopicExchange(rabbitProperties.getAccountUpdatedExchange());
     }
 
     @Bean
-    public Queue transactionQueue() {
-        return new Queue("transaction.created.queue", true);
+    public Queue accountUpdatedQueue() {
+        return new Queue(rabbitProperties.getAccountUpdatedQueue(), true);
     }
 
     @Bean
-    public Binding transactionBinding() {
-        return BindingBuilder.bind(transactionQueue())
-                .to(transactionExchange())
-                .with("transaction.created.event");
-    }
-
-    // Configuración para balance
-    @Bean
-    public TopicExchange balanceExchange() {
-        return new TopicExchange("balance.updated.exchange");
+    public Binding accountUpdatedBinding() {
+        return BindingBuilder.bind(accountUpdatedQueue())
+                .to(accountUpdatedExchange())
+                .with(rabbitProperties.getAccountUpdatedRoutingKey());
     }
 
     @Bean
-    public Queue balanceQueue() {
-        return new Queue("balance.updated.queue", true);
+    public TopicExchange userCreatedExchange() {
+        return new TopicExchange(rabbitProperties.getUserExchange());
     }
 
     @Bean
-    public Binding balanceBinding() {
-        return BindingBuilder.bind(balanceQueue())
-                .to(balanceExchange())
-                .with("balance.updated.event");
+    public Queue userCreatedQueue() {
+        return new Queue(rabbitProperties.getUserQueue(), true);
     }
 
-    // Configuración general
+    @Bean
+    public Binding userCreatedBinding() {
+        return BindingBuilder.bind(userCreatedQueue())
+                .to(userCreatedExchange())
+                .with(rabbitProperties.getUserRoutingKey());
+    }
+
+    @Bean
+    public TopicExchange transactionCreatedExchange() {
+        return new TopicExchange(rabbitProperties.getTransactionExchange());
+    }
+
+    @Bean
+    public Queue transactionCreatedQueue() {
+        return new Queue(rabbitProperties.getTransactionQueue(), true);
+    }
+
+    @Bean
+    public Binding transactionCreatedBinding() {
+        return BindingBuilder.bind(transactionCreatedQueue())
+                .to(transactionCreatedExchange())
+                .with(rabbitProperties.getTransactionRoutingKey());
+    }
+
     @Bean
     public MessageConverter jsonMessageConverter() {
         return new Jackson2JsonMessageConverter();
@@ -101,25 +102,21 @@ public class RabbitConfig {
     @Bean
     public ApplicationListener<ApplicationReadyEvent> initializeBeans(AmqpAdmin amqpAdmin) {
         return event -> {
-            // Declarar beans para account
-            amqpAdmin.declareExchange(accountExchange());
-            amqpAdmin.declareQueue(accountQueue());
-            amqpAdmin.declareBinding(accountBinding());
+            amqpAdmin.declareExchange(accountCreatedExchange());
+            amqpAdmin.declareQueue(accountCreatedQueue());
+            amqpAdmin.declareBinding(accountCreatedBinding());
 
-            // Declarar beans para createUser
-            amqpAdmin.declareExchange(createUserExchange());
-            amqpAdmin.declareQueue(createUserQueue());
-            amqpAdmin.declareBinding(createUserBinding());
+            amqpAdmin.declareExchange(userCreatedExchange());
+            amqpAdmin.declareQueue(userCreatedQueue());
+            amqpAdmin.declareBinding(userCreatedBinding());
 
-            // Declarar beans para transaction
-            amqpAdmin.declareExchange(transactionExchange());
-            amqpAdmin.declareQueue(transactionQueue());
-            amqpAdmin.declareBinding(transactionBinding());
+            amqpAdmin.declareExchange(transactionCreatedExchange());
+            amqpAdmin.declareQueue(transactionCreatedQueue());
+            amqpAdmin.declareBinding(transactionCreatedBinding());
 
-            // Declarar beans para balance
-            amqpAdmin.declareExchange(balanceExchange());
-            amqpAdmin.declareQueue(balanceQueue());
-            amqpAdmin.declareBinding(balanceBinding());
+            amqpAdmin.declareExchange(accountUpdatedExchange());
+            amqpAdmin.declareQueue(accountUpdatedQueue());
+            amqpAdmin.declareBinding(accountUpdatedBinding());
         };
     }
 }

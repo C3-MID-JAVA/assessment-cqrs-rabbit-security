@@ -44,6 +44,7 @@ public class Operation extends AggregateRoot<OperationId> {
         return events
                 .filter(eventsFilter -> id.equals(eventsFilter.getAggregateRootId()))
                 .flatMap(event -> Mono.fromRunnable(() -> operation.addEvent(event).apply()))
+                .doOnTerminate(operation::markEventsAsCommitted)
                 .then(Mono.just(operation));
     }
 }

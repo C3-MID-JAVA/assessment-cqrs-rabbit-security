@@ -1,11 +1,12 @@
 package ec.com.sofka.handler;
 
-import ec.com.sofka.account.GetAccountByNumberUseCase;
-import ec.com.sofka.account.GetAllByUserIdUseCase;
 import ec.com.sofka.account.commands.usecases.CreateAccountUseCase;
-import ec.com.sofka.account.request.GetAccountByNumberRequest;
-import ec.com.sofka.account.request.GetAllByUserIdRequest;
+import ec.com.sofka.account.queries.query.GetAccountByNumberQuery;
+import ec.com.sofka.account.queries.query.GetAllByUserIdQuery;
+import ec.com.sofka.account.queries.usecases.GetAccountByNumberViewUseCase;
+import ec.com.sofka.account.queries.usecases.GetAllByUserIdViewUseCase;
 import ec.com.sofka.dto.AccountRequestDTO;
+import ec.com.sofka.dto.GetAccountByNumberRequestDTO;
 import ec.com.sofka.mapper.AccountMapper;
 import ec.com.sofka.validator.RequestValidator;
 import org.springframework.http.HttpStatus;
@@ -19,21 +20,21 @@ import reactor.core.publisher.Mono;
 public class AccountHandler {
 
     private final RequestValidator requestValidator;
-    private final GetAccountByNumberUseCase getAccountByNumberUseCase;
+    private final GetAccountByNumberViewUseCase getAccountByNumberViewUseCase;
     private final CreateAccountUseCase createAccountUseCase;
-    private final GetAllByUserIdUseCase getAllByUserIdUseCase;
+    private final GetAllByUserIdViewUseCase getAllByUserIdViewUseCase;
 
-    public AccountHandler(RequestValidator requestValidator, GetAccountByNumberUseCase getAccountByNumberUseCase, CreateAccountUseCase createAccountUseCase, GetAllByUserIdUseCase getAllByUserIdUseCase) {
+    public AccountHandler(RequestValidator requestValidator, GetAccountByNumberViewUseCase getAccountByNumberViewUseCase, CreateAccountUseCase createAccountUseCase, GetAllByUserIdViewUseCase getAllByUserIdViewUseCase) {
         this.requestValidator = requestValidator;
-        this.getAccountByNumberUseCase = getAccountByNumberUseCase;
+        this.getAccountByNumberViewUseCase = getAccountByNumberViewUseCase;
         this.createAccountUseCase = createAccountUseCase;
-        this.getAllByUserIdUseCase = getAllByUserIdUseCase;
+        this.getAllByUserIdViewUseCase = getAllByUserIdViewUseCase;
     }
 
-    public Mono<ServerResponse> getByAccountNumber(ServerRequest request) {
-        return request.bodyToMono(GetAccountByNumberRequest.class)
-                .flatMap(getAccountByNumberUseCase::execute)
-                .map(AccountMapper::fromEntity)
+    public Mono<ServerResponse> getByAccountNumber(ServerRequest request){
+        String accountNumber = request.pathVariable("id");
+        return getAccountByNumberViewUseCase.get(new GetAccountByNumberQuery(accountNumber))
+                .map(queryResponse -> AccountMapper.fromEntity(queryResponse.getSingleResult().get()))
                 .flatMap(accountResponseDTO ->
                         ServerResponse
                                 .ok()
@@ -56,9 +57,11 @@ public class AccountHandler {
     public Mono<ServerResponse> getAllByUserId(ServerRequest request) {
         String userId = request.pathVariable("userId");
 
-        return getAllByUserIdUseCase.execute(new GetAllByUserIdRequest(userId))
-                .map(AccountMapper::fromEntity)
-                .collectList()
+        return getAllByUserIdViewUseCase.get(new GetAllByUserIdQuery(userId))
+                .map(queryResponse -> queryResponse.getMultipleResults()
+                        .stream()
+                        .map(AccountMapper::fromEntity)
+                        .toList())
                 .flatMap(accountResponseDTOs ->
                         ServerResponse
                                 .ok()

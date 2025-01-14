@@ -4,4 +4,6 @@ dependencies {
 
     implementation project(':usecases')
     implementation project(':model')
+    implementation project(':shared')
+
 }

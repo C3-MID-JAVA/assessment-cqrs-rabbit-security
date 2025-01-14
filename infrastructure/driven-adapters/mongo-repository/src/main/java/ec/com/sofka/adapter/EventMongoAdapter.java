@@ -5,22 +5,25 @@ import ec.com.sofka.data.EventEntity;
 import ec.com.sofka.database.events.IEventMongoRepository;
 import ec.com.sofka.gateway.IEventStore;
 import ec.com.sofka.generics.domain.DomainEvent;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Comparator;
-import java.util.List;
 
 @Repository
 public class EventMongoAdapter implements IEventStore {
 
     private final IEventMongoRepository repository;
     private final JSONMap mapper;
+    private final ReactiveMongoTemplate eventMongoTemplate;
 
-    public EventMongoAdapter(IEventMongoRepository repository, JSONMap mapper) {
+    public EventMongoAdapter(IEventMongoRepository repository, JSONMap mapper, @Qualifier("eventMongoTemplate") ReactiveMongoTemplate eventMongoTemplate) {
         this.repository = repository;
         this.mapper = mapper;
+        this.eventMongoTemplate = eventMongoTemplate;
     }
 
     @Override
