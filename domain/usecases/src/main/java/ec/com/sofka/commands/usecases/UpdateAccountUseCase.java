@@ -13,17 +13,17 @@ import java.util.List;
 
 public class UpdateAccountUseCase implements IUseCaseExecute<UpdateAccountCommand, UpdateAccountResponse> {
     private final AccountRepository accountRepository;
-    private final IEventStore eventRepository;
+    private final IEventStore iEventStore;
 
     public UpdateAccountUseCase(AccountRepository accountRepository, IEventStore eventRepository) {
         this.accountRepository = accountRepository;
-        this.eventRepository = eventRepository;
+        this.iEventStore = eventRepository;
     }
 
     @Override
     public UpdateAccountResponse execute(UpdateAccountCommand request) {
         //Get events related to the aggregateId on the request
-        List<DomainEvent> events = eventRepository.findAggregate(request.getAggregateId());
+        List<DomainEvent> events = iEventStore.findAggregate(request.getAggregateId());
 
 
         //Rebuild the aggregate
@@ -48,7 +48,7 @@ public class UpdateAccountUseCase implements IUseCaseExecute<UpdateAccountComman
 
         if (result != null) {
             //Last step for events to be saved
-            customer.getUncommittedEvents().forEach(eventRepository::save);
+            customer.getUncommittedEvents().forEach(iEventStore::save);
 
             customer.markEventsAsCommitted();
 
