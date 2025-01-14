@@ -64,7 +64,6 @@ class AuthRouterTest {
                 .expectBody(CreateUserRequest.class)
                 .value(response -> {
                     assert response.getUsername().equals(request.getUsername());
-                    assert response.getPassword().equals(request.getPassword());
                 });
     }
 

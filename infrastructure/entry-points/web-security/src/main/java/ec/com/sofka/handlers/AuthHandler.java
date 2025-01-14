@@ -47,7 +47,7 @@ public class AuthHandler {
                 )
         ).map(res ->
                 new CreateUserRequest(res.getUsername(),
-                        res.getPassword(),
+                        "",
                         res.getRoles()));
     }
 

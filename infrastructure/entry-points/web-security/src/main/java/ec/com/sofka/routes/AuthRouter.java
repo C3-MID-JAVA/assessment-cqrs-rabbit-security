@@ -2,6 +2,7 @@ package ec.com.sofka.routes;
 
 import ec.com.sofka.ErrorDetails;
 import ec.com.sofka.data.AuthRequest;
+import ec.com.sofka.data.AuthResponse;
 import ec.com.sofka.data.CreateUserRequest;
 import ec.com.sofka.exceptions.BodyRequestValidator;
 import ec.com.sofka.exceptions.GlobalExceptionsHandler;
@@ -72,6 +73,51 @@ public class AuthRouter {
                                     )
                             }
                     )
+            ),
+            @RouterOperation(
+                    path = "/api/v1/user/authenticate",
+                    method = RequestMethod.POST,
+                    operation = @Operation(
+                            tags = {"Users"},
+                            operationId = "login",
+                            summary = "Authenticate an user",
+                            description = "Authenticates an user with username and password",
+                            requestBody = @RequestBody(
+                                    description = "Authenticate credentials",
+                                    required = true,
+                                    content = @Content(
+                                            mediaType = "application/json",
+                                            schema = @Schema(implementation = AuthRequest.class)
+                                    )
+                            ),
+                            responses = {
+                                    @ApiResponse(
+                                            responseCode = "200",
+                                            description = "User successfully authenticate",
+                                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = AuthResponse.class))
+                                    ),
+                                    @ApiResponse(
+                                            responseCode = "400",
+                                            description = "Bad request, validation error or missing required fields",
+                                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDetails.class))
+                                    ),
+                                    @ApiResponse(
+                                            responseCode = "500",
+                                            description = "Invalid Credentials",
+                                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDetails.class))
+                                    ),
+                                    @ApiResponse(
+                                            responseCode = "500",
+                                            description = "Invalid Credentials",
+                                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDetails.class))
+                                    ),
+                                    @ApiResponse(
+                                            responseCode = "500",
+                                            description = "Invalid Credentials",
+                                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDetails.class))
+                                    )
+                            }
+                    )
             )
     })
     public RouterFunction<ServerResponse> userRoutes() {
@@ -93,6 +139,7 @@ public class AuthRouter {
                 .onErrorResume(globalExceptionsHandler::handleException);
 
     }
+
     public Mono<ServerResponse> login(ServerRequest request) {
 
         return request.bodyToMono(AuthRequest.class)

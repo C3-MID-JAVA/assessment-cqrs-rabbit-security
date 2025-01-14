@@ -101,8 +101,8 @@ class CardRouterTest {
                 BigDecimal.valueOf(1000), "TEST HOLDER",
                 accountDTO
         );
-        AccountSimpleRequestDTO accountDTO2 = new AccountSimpleRequestDTO("cus", "123456789");
-        //accountDTO2.setAccountNumber("123456");
+        AccountSimpleRequestDTO accountDTO2 = new AccountSimpleRequestDTO("123456789");
+
 
 
         when(cardHandler.getCardsByAccountNumber(anyString())).thenReturn(Flux.just(cardDTO, cardDTO2));
