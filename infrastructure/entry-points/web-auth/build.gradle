@@ -1,0 +1,23 @@
+dependencies {
+
+    implementation project(':usecases')
+    implementation project(':model')
+    implementation project(':app-security')
+    implementation project(':app-exception')
+
+    implementation 'org.springframework.boot:spring-boot-starter'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.security:spring-security-core'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springdoc:springdoc-openapi-starter-webflux-ui:2.7.0'
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'io.projectreactor:reactor-test'
+    testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.11.4'
+    testImplementation group: 'org.mockito', name: 'mockito-core', version: '5.14.2'
+
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
