@@ -2,44 +2,40 @@ package ec.com.sofka.gateway.dto;
 
 import java.math.BigDecimal;
 
-//This class is used to transfer data between the application and the database -
-//Notice how this affect the AccountRepository interface that lives in usecases
-//Notice also how this impacts on the driven adapter that implements the AccountRepository interface that lives in usecases.
 public class AccountDTO {
     private String id;
     private String accountNumber;
-    private String name;
     private BigDecimal balance;
-    private String status;
+    private String userId;
 
-    public AccountDTO(String id, String name, String accountNumber, BigDecimal balance, String status) {
+    public AccountDTO(String id) {
         this.id = id;
-        this.balance = balance;
-        this.name = name;
-        this.accountNumber = accountNumber;
-        this.status = status;
     }
 
-    public AccountDTO(String name, String accountNumber, BigDecimal balance, String status) {
+    public AccountDTO(BigDecimal balance, String accountNumber, String userId) {
         this.balance = balance;
-        this.name = name;
         this.accountNumber = accountNumber;
-        this.status = status;
+        this.userId = userId;
+    }
+
+    public AccountDTO(String id, String accountNumber, BigDecimal balance, String userId) {
+        this.accountNumber = accountNumber;
+        this.id = id;
+        this.balance = balance;
+        this.userId = userId;
     }
 
     public String getId() {
         return id;
     }
 
-
-
     public String getAccountNumber() {
         return accountNumber;
     }
 
 
-    public String getName() {
-        return name;
+    public String getUserId() {
+        return userId;
     }
 
 
@@ -47,7 +43,20 @@ public class AccountDTO {
         return balance;
     }
 
-    public String getStatus() {
-        return status;
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public void setAccountNumber(String accountNumber) {
+        this.accountNumber = accountNumber;
+    }
+
+    public void setBalance(BigDecimal balance) {
+        this.balance = balance;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 }
