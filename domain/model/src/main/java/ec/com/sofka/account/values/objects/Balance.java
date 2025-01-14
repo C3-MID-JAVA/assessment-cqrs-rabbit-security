@@ -4,8 +4,6 @@ import ec.com.sofka.generics.interfaces.IValueObject;
 
 import java.math.BigDecimal;
 
-//4. Creation of a value object: In Value objects is where validations must go.
-//Objects values garantees the integrity of the data
 public class Balance implements IValueObject<BigDecimal> {
     private final BigDecimal value;
 
@@ -22,7 +20,6 @@ public class Balance implements IValueObject<BigDecimal> {
         return this.value;
     }
 
-    //hello validations
     private BigDecimal validate(final BigDecimal value){
         if(value == null){
             throw new IllegalArgumentException("The balance can't be null");
@@ -31,7 +28,6 @@ public class Balance implements IValueObject<BigDecimal> {
         if(value.compareTo(BigDecimal.ZERO) < 0){
             throw new IllegalArgumentException("The balance must be greater than 0");
         }
-
 
         return value;
     }

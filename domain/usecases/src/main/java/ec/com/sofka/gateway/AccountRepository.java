@@ -1,14 +1,11 @@
 package ec.com.sofka.gateway;
 
 import ec.com.sofka.gateway.dto.AccountDTO;
-
-import java.util.List;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 public interface AccountRepository {
-    List<AccountDTO> findAll();
-    AccountDTO findByAcccountId(String id);
-    AccountDTO findByNumber(String number);
-    AccountDTO save(AccountDTO account);
-    AccountDTO update(AccountDTO account);
-    AccountDTO delete(AccountDTO account);
+    Mono<AccountDTO> findByAccountNumber(String accountNumber);
+    Mono<AccountDTO> save(AccountDTO account);
+    Flux<AccountDTO> getAllByUserId(String userId);
 }

@@ -1,6 +1,6 @@
 package ec.com.sofka.generics.domain;
 
-import ec.com.sofka.generics.interfaces.IEvent;
+import ec.com.sofka.generics.interfaces.IApplyEvent;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -22,27 +22,28 @@ public class DomainActionsHandler {
         actions.addAll(container.domainActions);
     }
 
-    public IEvent append(final DomainEvent event){
+    public IApplyEvent append(final DomainEvent event) {
         events.add(event);
         return () -> apply(event);
     }
 
-    private long increaseVersion(final DomainEvent event){
+    private long increaseVersion(final DomainEvent event) {
         final AtomicLong current = versions.get(event.getEventType());
         final long newVersion = current != null ? current.incrementAndGet() : event.getVersion();
         versions.put(event.getEventType(), new AtomicLong(newVersion));
         return newVersion;
     }
 
-    private void handle(final DomainEvent event, final Consumer<? super DomainEvent> action){
-        try{ //To avoid a casting issue
+    private void handle(final DomainEvent event, final Consumer<? super DomainEvent> action) {
+        try {
             action.accept(event);
             long version = increaseVersion(event);
             event.setVersion(version);
-        }catch(Exception ignored){}
+        } catch (Exception ignored) {
+        }
     }
 
-    private void apply(final DomainEvent event){
+    private void apply(final DomainEvent event) {
         actions.forEach(action -> handle(event, action));
     }
 }

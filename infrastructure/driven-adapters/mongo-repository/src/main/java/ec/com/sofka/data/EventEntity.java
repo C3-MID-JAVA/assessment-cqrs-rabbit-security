@@ -30,35 +30,80 @@ public class EventEntity {
     @Field("version")
     private Long version;
 
-    public EventEntity() {
-    }
+    @Field("aggregate_root_name")
+    private String aggregateRootName;
 
-    public EventEntity(String id, String aggregateId, String eventType, String eventData, String timestamp, Long version) {
+    public EventEntity(String id, String aggregateId, String eventType, String eventData, String timestamp, Long version, String aggregateRootName) {
         this.id = id;
         this.aggregateId = aggregateId;
         this.eventType = eventType;
         this.eventData = eventData;
         this.timestamp = timestamp;
         this.version = version;
+        this.aggregateRootName = aggregateRootName;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getAggregateId() {
         return aggregateId;
     }
 
-    public String getEventData() {
-        return eventData;
+    public void setAggregateId(String aggregateId) {
+        this.aggregateId = aggregateId;
     }
 
     public String getEventType() {
         return eventType;
     }
 
-    public static String wrapEvent(DomainEvent domainEvent, JSONMap eventSerializer){
+    public void setEventType(String eventType) {
+        this.eventType = eventType;
+    }
+
+    public String getEventData() {
+        return eventData;
+    }
+
+    public void setEventData(String eventData) {
+        this.eventData = eventData;
+    }
+
+    public String getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(String timestamp) {
+        this.timestamp = timestamp;
+    }
+
+    public Long getVersion() {
+        return version;
+    }
+
+    public void setVersion(Long version) {
+        this.version = version;
+    }
+
+    public String getAggregateRootName() {
+        return aggregateRootName;
+    }
+
+    public void setAggregateRootName(String aggregateRootName) {
+        this.aggregateRootName = aggregateRootName;
+    }
+
+    public static String wrapEvent(DomainEvent domainEvent, JSONMap eventSerializer) {
         return eventSerializer.writeToJson(domainEvent);
     }
 
-    public DomainEvent deserializeEvent(JSONMap eventSerializer) {
+    public DomainEvent deserializeEvent(JSONMap eventSerializer, String aggregate) {
         try {
 
             String className = Arrays.stream(this.getEventType().toLowerCase().split("_"))
@@ -66,13 +111,10 @@ public class EventEntity {
                     .collect(Collectors.joining());
 
             return (DomainEvent) eventSerializer
-                    .readFromJson(this.getEventData(), Class.forName("ec.com.sofka.aggregate.events."+className));
+                    .readFromJson(this.getEventData(), Class.forName("ec.com.sofka.aggregate." + aggregate + ".events." + className));
         } catch (ClassNotFoundException e) {
             return null;
         }
     }
-
-
-
 }
 
