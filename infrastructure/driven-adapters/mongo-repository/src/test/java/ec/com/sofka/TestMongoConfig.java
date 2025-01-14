@@ -1,4 +1,4 @@
-package ec.com.sofka.config;
+package ec.com.sofka;
 
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;

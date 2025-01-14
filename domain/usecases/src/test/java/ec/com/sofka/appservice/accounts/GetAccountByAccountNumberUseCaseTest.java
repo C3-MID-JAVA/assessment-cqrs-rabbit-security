@@ -1,7 +1,11 @@
 package ec.com.sofka.appservice.accounts;
 
+import ec.com.sofka.ConflictException;
 import ec.com.sofka.account.Account;
 import ec.com.sofka.appservice.gateway.IAccountRepository;
+import ec.com.sofka.appservice.gateway.dto.AccountDTO;
+import ec.com.sofka.appservice.queries.query.GetByQuery;
+import ec.com.sofka.appservice.queries.responses.AccountResponse;
 import ec.com.sofka.appservice.queries.usecases.GetAccountByAccountNumberUseCase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,59 +15,81 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.math.BigDecimal;
-import java.util.NoSuchElementException;
 
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.*;
 
 public class GetAccountByAccountNumberUseCaseTest {
 
     @Mock
-    private IAccountRepository repository;
+    private IAccountRepository accountRepository;
 
     private GetAccountByAccountNumberUseCase useCase;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        useCase = new GetAccountByAccountNumberUseCase(repository);
+        useCase = new GetAccountByAccountNumberUseCase(accountRepository);
     }
 
     @Test
-    void getAccountByNumberSuccessfully() {
-        // Arrange
-        String accountNumber = "123456";
-        Account expectedAccount = new Account(
-                "675dbabe03edcf54111957fe",
-                BigDecimal.valueOf(1000),
-                "1234567890",
-                "Juan Perez"
-        );
-        expectedAccount.setAccountNumber(accountNumber);
+    void shouldReturnAccountSuccessfullyWhenAccountExists() {
+        // Datos de prueba
+        String accountNumber = "0123456789";
+        String accountId = "account123";
+        String customerName = "John Doe";
+        BigDecimal balance = BigDecimal.ZERO;
+        String status = "ACCOUNT_ACTIVE";
 
-        when(repository.findByAccountNumber(accountNumber))
-                .thenReturn(Mono.just(expectedAccount));
+        // Creamos el DTO de la cuenta que será retornado por el repositorio
+        AccountDTO accountDTO = new AccountDTO(accountId, customerName, accountNumber, balance, status);
 
-        // Act & Assert
-        StepVerifier.create(useCase.apply(accountNumber))
-                .expectNext(expectedAccount)
+        // Simulamos que el repositorio encuentra la cuenta
+        when(accountRepository.findByAccountNumber(accountNumber))
+                .thenReturn(Mono.just(accountDTO));
+
+        // Creamos el comando de consulta
+        GetByQuery query = new GetByQuery(accountNumber);
+
+        // Ejecutamos el caso de uso
+        StepVerifier.create(useCase.get(query))
+                .consumeNextWith(response -> {
+                    AccountResponse accountResponse = response.getSingleResult().get();
+
+                    // Verificamos que la respuesta contiene los datos correctos
+                    assertEquals(accountId, accountResponse.getAccountId());
+                    assertEquals(accountNumber, accountResponse.getAccountNumber());
+                    assertEquals(customerName,accountResponse.getName());
+                    assertEquals(balance, accountResponse.getBalance());
+                    assertEquals(status, accountResponse.getStatus());
+                })
                 .verifyComplete();
+
+        // Verificamos que el repositorio haya sido llamado con el número de cuenta
+        verify(accountRepository, times(1)).findByAccountNumber(accountNumber);
     }
 
-    @Test
-    void getAccountByNumberNotFound() {
-        // Arrange
-        String accountNumber = "nonexistent123";
 
-        when(repository.findByAccountNumber(accountNumber))
+    @Test
+    void shouldThrowConflictExceptionWhenAccountDoesNotExist() {
+        // Datos de prueba
+        String accountNumber = "0123456789";
+
+        // Simulamos que no se encuentra la cuenta en el repositorio
+        when(accountRepository.findByAccountNumber(accountNumber))
                 .thenReturn(Mono.empty());
 
-        // Act & Assert
-        StepVerifier.create(useCase.apply(accountNumber))
-                .expectErrorMatches(throwable ->
-                        throwable instanceof NoSuchElementException &&
-                                throwable.getMessage().equals("The account with the provided account number does not exist")
-                )
+        // Creamos el comando de consulta
+        GetByQuery query = new GetByQuery(accountNumber);
+
+        // Ejecutamos el caso de uso y verificamos que se lance la excepción
+        StepVerifier.create(useCase.get(query))
+                .expectErrorMatches(ex -> ex instanceof ConflictException && ex.getMessage().equals("Account not found by number account."))
                 .verify();
+
+        // Verificamos que el repositorio haya sido llamado con el número de cuenta
+        verify(accountRepository, times(1)).findByAccountNumber(accountNumber);
     }
+
 
 }

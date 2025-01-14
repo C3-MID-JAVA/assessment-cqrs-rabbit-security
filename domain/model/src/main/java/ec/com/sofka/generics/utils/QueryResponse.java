@@ -10,7 +10,7 @@ public class QueryResponse <R>{
     private final R singleResult;
     private final List<R> multipleResults;
 
-    private QueryResponse(R singleResult, List<R> multipleResults) {
+    public QueryResponse(R singleResult, List<R> multipleResults) {
         this.singleResult = singleResult;
         this.multipleResults = multipleResults;
     }
