@@ -15,15 +15,20 @@ public abstract class DomainEvent {
 
     private Long version;
 
+    public DomainEvent(Instant when, String eventId, String eventType, String aggregateRootId, String aggregateRootName, Long version) {
+        this.when = when;
+        this.eventId = eventId;
+        this.eventType = eventType;
+        this.aggregateRootId = aggregateRootId;
+        this.aggregateRootName = aggregateRootName;
+        this.version = version;
+    }
+
     public DomainEvent(String eventType) {
         this.when = Instant.now();
         this.eventId = UUID.randomUUID().toString();
         this.eventType = eventType;
         this.version = 1L;
-    }
-
-    public String getAggregateRootId() {
-        return aggregateRootId;
     }
 
     public Instant getWhen() {
@@ -38,7 +43,9 @@ public abstract class DomainEvent {
         return eventType;
     }
 
-
+    public String getAggregateRootId() {
+        return aggregateRootId;
+    }
 
     public void setAggregateRootId(String aggregateRootId) {
         this.aggregateRootId = aggregateRootId;

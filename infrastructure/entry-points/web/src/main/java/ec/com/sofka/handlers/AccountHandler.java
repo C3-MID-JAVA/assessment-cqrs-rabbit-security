@@ -1,117 +1,71 @@
 package ec.com.sofka.handlers;
 
-import ec.com.sofka.commands.CreateAccountCommand;
-import ec.com.sofka.commands.usecases.CreateAccountUseCase;
-import ec.com.sofka.commands.usecases.DeleteAccountUseCase;
-import ec.com.sofka.commands.usecases.UpdateAccountUseCase;
-import ec.com.sofka.data.RequestDTO;
-import ec.com.sofka.data.ResponseDTO;
-import ec.com.sofka.queries.query.GetAccountQuery;
-import ec.com.sofka.commands.UpdateAccountCommand;
-import ec.com.sofka.queries.usecases.GetAccountByNumberUseCase;
-import ec.com.sofka.queries.usecases.GetAllAccountsUseCase;
+import ec.com.sofka.account.commands.usecases.CreateAccountUseCase;
+import ec.com.sofka.account.queries.query.GetAccountByNumberQuery;
+import ec.com.sofka.account.queries.query.GetAllByUserIdQuery;
+import ec.com.sofka.account.queries.usecases.GetAccountByNumberViewUseCase;
+import ec.com.sofka.account.queries.usecases.GetAllByUserIdViewUseCase;
+import ec.com.sofka.dto.AccountRequestDTO;
+import ec.com.sofka.dto.GetAccountByNumberRequestDTO;
+import ec.com.sofka.mapper.AccountMapper;
+import ec.com.sofka.validator.RequestValidator;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
+import org.springframework.web.reactive.function.server.ServerRequest;
+import org.springframework.web.reactive.function.server.ServerResponse;
+import reactor.core.publisher.Mono;
 
 @Component
 public class AccountHandler {
+
+    private final RequestValidator requestValidator;
+    private final GetAccountByNumberViewUseCase getAccountByNumberViewUseCase;
     private final CreateAccountUseCase createAccountUseCase;
-    private final GetAllAccountsUseCase getAllAccountsUseCase;
-    private final GetAccountByNumberUseCase getAccountByNumberUseCase;
-    private final UpdateAccountUseCase updateAccountUseCase;
-    private final DeleteAccountUseCase deleteAccountUseCase;
+    private final GetAllByUserIdViewUseCase getAllByUserIdViewUseCase;
 
-    public AccountHandler(CreateAccountUseCase createAccountUseCase, GetAllAccountsUseCase getAllAccountsUseCase, GetAccountByNumberUseCase getAccountByNumberUseCase, UpdateAccountUseCase updateAccountUseCase, DeleteAccountUseCase deleteAccountUseCase) {
+    public AccountHandler(RequestValidator requestValidator, GetAccountByNumberViewUseCase getAccountByNumberViewUseCase, CreateAccountUseCase createAccountUseCase, GetAllByUserIdViewUseCase getAllByUserIdViewUseCase) {
+        this.requestValidator = requestValidator;
+        this.getAccountByNumberViewUseCase = getAccountByNumberViewUseCase;
         this.createAccountUseCase = createAccountUseCase;
-        this.getAllAccountsUseCase = getAllAccountsUseCase;
-        this.getAccountByNumberUseCase = getAccountByNumberUseCase;
-        this.updateAccountUseCase = updateAccountUseCase;
-        this.deleteAccountUseCase = deleteAccountUseCase;
+        this.getAllByUserIdViewUseCase = getAllByUserIdViewUseCase;
     }
 
-    public ResponseDTO createAccount(RequestDTO request){
-        var response = createAccountUseCase.execute(
-                new CreateAccountCommand(
-                        request.getAccountNum(),
-                        request.getName(),
-                        request.getBalance()
-
-                ));
-        return new ResponseDTO(response.getCustomerId(),
-                response.getAccountId(),
-                response.getName(),
-                response.getAccountNumber(),
-                response.getBalance(),
-                response.getStatus());
+    public Mono<ServerResponse> getByAccountNumber(ServerRequest request){
+        String accountNumber = request.pathVariable("id");
+        return getAccountByNumberViewUseCase.get(new GetAccountByNumberQuery(accountNumber))
+                .map(queryResponse -> AccountMapper.fromEntity(queryResponse.getSingleResult().get()))
+                .flatMap(accountResponseDTO ->
+                        ServerResponse
+                                .ok()
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .bodyValue(accountResponseDTO));
     }
 
-    public List<ResponseDTO> getAllAccounts(){
-        var response = getAllAccountsUseCase.get(new GetAccountQuery());
-        return response.getMultipleResults().stream()
-                .map(accountResponse -> new ResponseDTO(
-                        accountResponse.getCustomerId(),
-                        accountResponse.getAccountId(),
-                        accountResponse.getName(),
-                        accountResponse.getAccountNumber(),
-                        accountResponse.getBalance(),
-                        accountResponse.getStatus()
-                        )
-                ).toList();
+    public Mono<ServerResponse> create(ServerRequest request) {
+        return request.bodyToMono(AccountRequestDTO.class)
+                .doOnNext(requestValidator::validate)
+                .map(AccountMapper::toEntity)
+                .flatMap(createAccountUseCase::execute)
+                .map(AccountMapper::fromEntity)
+                .flatMap(accountResponseDTO -> ServerResponse
+                        .status(HttpStatus.CREATED)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .bodyValue(accountResponseDTO));
     }
 
-    public ResponseDTO getAccountByNumber(RequestDTO request){
-        var response = getAccountByNumberUseCase.get(
-                new GetAccountQuery(
-                        request.getCustomerId(),
-                        request.getAccountNum()
-                )).getSingleResult().get();
+    public Mono<ServerResponse> getAllByUserId(ServerRequest request) {
+        String userId = request.pathVariable("userId");
 
-        return new ResponseDTO(
-                response.getCustomerId(),
-                response.getAccountId(),
-                response.getName(),
-                response.getAccountNumber(),
-                response.getBalance(),
-                response.getStatus());
-    }
-
-    public ResponseDTO updateAccount(RequestDTO request){
-        var response = updateAccountUseCase.execute(
-                new UpdateAccountCommand(
-                        request.getCustomerId(),
-                        request.getBalance(),
-                        request.getAccountNum(),
-                        request.getName(),
-                        request.getStatus()
-                ));
-
-        return new ResponseDTO(
-                response.getCustomerId(),
-                response.getAccountId(),
-                response.getName(),
-                response.getAccountNumber(),
-                response.getBalance(),
-                response.getStatus()
-        );
-    }
-
-    public ResponseDTO deleteAccount(RequestDTO request){
-        var response = deleteAccountUseCase.execute(
-                new UpdateAccountCommand(
-                        request.getCustomerId(),
-                        request.getBalance(),
-                        request.getAccountNum(),
-                        request.getName(),
-                        request.getStatus()
-
-                ));
-        return new ResponseDTO(
-                response.getCustomerId(),
-                response.getAccountId(),
-                response.getName(),
-                response.getAccountNumber(),
-                response.getBalance(),
-                response.getStatus());
+        return getAllByUserIdViewUseCase.get(new GetAllByUserIdQuery(userId))
+                .map(queryResponse -> queryResponse.getMultipleResults()
+                        .stream()
+                        .map(AccountMapper::fromEntity)
+                        .toList())
+                .flatMap(accountResponseDTOs ->
+                        ServerResponse
+                                .ok()
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .bodyValue(accountResponseDTOs));
     }
 }
