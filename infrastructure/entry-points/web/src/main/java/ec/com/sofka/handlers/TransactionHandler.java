@@ -41,10 +41,10 @@ public class TransactionHandler {
                         transaction.getStatus()
                 ));
     }
-
+/*
     private Mono<AccountDTO> validateAccount(GetAccountQuery requestAcc) {
         return getAccountByNumberUseCase.get(requestAcc)
-                .switchIfEmpty(Mono.error(new CuentaNoEncontradaException("Cuenta no encontrada")))
+                .switchIfEmpty(Mono.error(new RuntimeException("Cuenta no encontrada")))
                 .map(queryResponse -> {
                     GetAccountResponse accountResponse = queryResponse.getSingleResult().get();
                     return new AccountDTO(
@@ -56,7 +56,22 @@ public class TransactionHandler {
                     );
                 });
     }
-
+*/
+private Mono<AccountDTO> validateAccount(GetAccountQuery requestAcc) {
+    return getAccountByNumberUseCase.get(requestAcc)
+            .switchIfEmpty(Mono.empty())
+            .map(queryResponse -> {
+                GetAccountResponse accountResponse = queryResponse.getSingleResult().get();
+                return new AccountDTO(
+                        accountResponse.getAccountId(),
+                        accountResponse.getName(),
+                        accountResponse.getAccountNumber(),
+                        accountResponse.getBalance(),
+                        accountResponse.getStatus()
+                );
+            })
+            .onErrorResume(e -> Mono.error(new RuntimeException("Cuenta no encontrada")));
+}
     private BigDecimal obtenerCostoTipoTransaccion(String tipo) {
         if (!TypeTransaction.validadorTipo.validar(tipo)) {
             throw new IllegalArgumentException("Tipo de transacción no válido: " + tipo);

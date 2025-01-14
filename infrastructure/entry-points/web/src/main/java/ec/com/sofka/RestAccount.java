@@ -2,6 +2,7 @@ package ec.com.sofka;
 import ec.com.sofka.data.RequestDTO;
 import ec.com.sofka.data.ResponseDTO;
 import ec.com.sofka.handlers.AccountHandler;
+import ec.com.sofka.validator.RequestValidator;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -21,9 +22,11 @@ import reactor.core.publisher.Mono;
 @Configuration
 public class RestAccount {
     private final AccountHandler handler;
+    private final RequestValidator requestValidator;
 
-    public RestAccount(AccountHandler handler) {
+    public RestAccount(AccountHandler handler, RequestValidator requestValidator) {
         this.handler = handler;
+        this.requestValidator = requestValidator;
     }
 
     @Bean
@@ -157,12 +160,13 @@ public class RestAccount {
 
     public Mono<ServerResponse> createAccount(ServerRequest request) {
         return request.bodyToMono(RequestDTO.class)
+                .doOnNext(requestValidator::validate)
                 .flatMap(handler::createAccount)
                 .flatMap(response -> ServerResponse.status(HttpStatus.CREATED)
                         .contentType(MediaType.APPLICATION_JSON)
                         .bodyValue(response))
                 .onErrorResume(e -> ServerResponse.status(HttpStatus.BAD_REQUEST)
-                        .bodyValue("Error creando la cuenta"));
+                        .bodyValue(e.getMessage()));
     }
 
     public Mono<ServerResponse> getAllAccounts(ServerRequest request) {
@@ -174,7 +178,7 @@ public class RestAccount {
                 .switchIfEmpty(ServerResponse.status(HttpStatus.NOT_FOUND)
                         .bodyValue("No existen cuentas"))
                 .onErrorResume(e -> ServerResponse.status(HttpStatus.BAD_REQUEST)
-                        .bodyValue("Error recuperando ciuentas"));
+                        .bodyValue("Error recuperando cuentas"));
     }
 
     public Mono<ServerResponse> getAccountByNumber(ServerRequest request) {
@@ -184,17 +188,18 @@ public class RestAccount {
                         .contentType(MediaType.APPLICATION_JSON)
                         .bodyValue(response))
                 .onErrorResume(e -> ServerResponse.status(HttpStatus.NOT_FOUND)
-                        .bodyValue("La cuenta con el ID  no existe"));
+                        .bodyValue("La cuenta  no existe"));
     }
 
     public Mono<ServerResponse> updateAccount(ServerRequest request) {
         return request.bodyToMono(RequestDTO.class)
+                .doOnNext(requestValidator::validate)
                 .flatMap(handler::updateAccount)
                 .flatMap(response -> ServerResponse.ok()
                         .contentType(MediaType.APPLICATION_JSON)
                         .bodyValue(response))
                 .onErrorResume(e -> ServerResponse.status(HttpStatus.BAD_REQUEST)
-                        .bodyValue("Error la  cuenta no fue actualizada"));
+                        .bodyValue(e.getMessage()));
     }
 }
 

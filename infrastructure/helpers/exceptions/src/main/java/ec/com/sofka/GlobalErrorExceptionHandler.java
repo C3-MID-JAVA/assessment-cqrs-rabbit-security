@@ -2,9 +2,6 @@ package ec.com.sofka;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-
-
 import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.boot.web.reactive.error.ErrorWebExceptionHandler;
 import org.springframework.http.HttpStatus;
@@ -34,7 +31,11 @@ public class GlobalErrorExceptionHandler implements ErrorWebExceptionHandler {
             AccessDeniedException.class, ex -> new ErrorDetails(HttpStatus.FORBIDDEN.value(), ex.getMessage(), new Date()),
             ConflictException.class, ex -> new ErrorDetails(HttpStatus.BAD_REQUEST.value(), ex.getMessage(), new Date()),
             ExpiredJwtException.class, ex -> new ErrorDetails(HttpStatus.UNAUTHORIZED.value(), ex.getMessage(), new Date()),
-            UsernameNotFoundException.class, ex -> new ErrorDetails(HttpStatus.UNAUTHORIZED.value(), ex.getMessage(), new Date()));
+            UsernameNotFoundException.class, ex -> new ErrorDetails(HttpStatus.UNAUTHORIZED.value(), ex.getMessage(), new Date()),
+            IllegalArgumentException.class, ex -> new ErrorDetails(HttpStatus.BAD_REQUEST.value(), ex.getMessage(), new Date()),
+            CuentaNoEncontradaException.class, ex -> new ErrorDetails(HttpStatus.NOT_FOUND.value(), ex.getMessage(), new Date()),
+            SaldoInsuficienteException.class, ex -> new ErrorDetails(HttpStatus.NOT_FOUND.value(), ex.getMessage(), new Date()));
+
 
 
     @Override
@@ -55,7 +56,5 @@ public class GlobalErrorExceptionHandler implements ErrorWebExceptionHandler {
         } catch (JsonProcessingException e) {
             return Mono.error(new InternalServerException("Error processing response"));
         }
-
     }
-
 }

@@ -21,16 +21,22 @@ public class RegisterAuthenticationUseCase {
         this.jwtService = jwtService;
     }
     public Mono<RegisterResponse> execute(RegisterAuthenticationCommand registerAdminCommand) {
-        String hashedPassword = passwordHasher.hashPassword(registerAdminCommand.getPassword());
-        return authenticationRepository.findByEmail(registerAdminCommand.getEmail())
-                .flatMap(existingAdmin -> Mono.<RegisterResponse>error(new RuntimeException("Admin already exists")))
-                .switchIfEmpty(Mono.defer(() -> {
-                            return authenticationRepository.save(new UserDTO(registerAdminCommand.getEmail(), hashedPassword))
-                                    .map(savedAdmin -> {
-                                        //String token = jwtService.generateToken(savedAdmin.getEmail());
-                                        return new RegisterResponse(savedAdmin.getEmail());
-                                    });
-                        })
-                );
+        try {
+            String hashedPassword = passwordHasher.hashPassword(registerAdminCommand.getPassword());
+            return authenticationRepository.findByEmail(registerAdminCommand.getEmail())
+                    .flatMap(existingAdmin -> Mono.<RegisterResponse>error(new RuntimeException("Admin already exists")))
+                    .switchIfEmpty(Mono.defer(() -> {
+                                return authenticationRepository.save(new UserDTO(registerAdminCommand.getEmail(), hashedPassword))
+                                        .map(savedAdmin -> {
+                                            //String token = jwtService.generateToken(savedAdmin.getEmail());
+                                            return new RegisterResponse(savedAdmin.getEmail());
+                                        });
+                            })
+                    );
+
+        }catch (RuntimeException e) {
+            return Mono.error(e);
+        }
+
     }
 }

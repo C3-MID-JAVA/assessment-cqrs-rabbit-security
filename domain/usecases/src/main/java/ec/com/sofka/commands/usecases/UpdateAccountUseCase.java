@@ -85,6 +85,9 @@ public class UpdateAccountUseCase implements IUseCaseExecute<UpdateAccountComman
         return eventRepository.findAggregate(request.getAggregateId())
                 .collectList()
                 .flatMap(events -> {
+                    if (events.isEmpty()) {
+                        return Mono.error(new RuntimeException("Cuenta no existe en el repositorio"));
+                    }
                     Customer customer = Customer.from(request.getAggregateId(), events);
 
                     customer.updateAccount(

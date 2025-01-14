@@ -86,4 +86,5 @@ public class GlobalExceptionsHandlers {
     public Mono<ResponseEntity<ErrorResponse>> handleNotFoundException(NotFoundException ex, ServerWebExchange exchange) {
         return createErrorResponse(ex, HttpStatus.NOT_FOUND, exchange.getRequest().getPath().toString());
     }
-}*/
+}
+*/

@@ -52,6 +52,7 @@ public class GetAccountByNumberUseCase implements IUseCaseGet<GetAccountQuery, G
 */
 package ec.com.sofka.queries.usecases;
 
+import ec.com.sofka.CuentaNoEncontradaException;
 import ec.com.sofka.aggregate.Customer;
 import ec.com.sofka.gateway.AccountRepository;
 import ec.com.sofka.gateway.IEventStore;
@@ -83,8 +84,7 @@ public class GetAccountByNumberUseCase implements IUseCaseGet<GetAccountQuery, G
 
                     // Get the account from the repository
                     return Mono.fromCallable(() -> {
-                        // AccountDTO result = accountRepository.findByNumber(customer.getAccount().getNumber().getValue());
-                        // System.out.println("Data devuelta de la account -----" + result);
+
                         // Return the response
                         return QueryResponse.ofSingle(new GetAccountResponse(
                                 customer.getId().getValue(),
@@ -94,7 +94,7 @@ public class GetAccountByNumberUseCase implements IUseCaseGet<GetAccountQuery, G
                                 customer.getAccount().getBalance().getValue(),
                                 customer.getAccount().getStatus().getValue()
                         ));
-                    }).onErrorMap(e -> new RuntimeException("Cuenta no encontrada" + e.getMessage()));
+                    }).onErrorMap(e -> new CuentaNoEncontradaException("Cuenta no encontrada"));
                 });
     }
 }

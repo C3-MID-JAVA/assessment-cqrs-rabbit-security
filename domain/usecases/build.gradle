@@ -1,5 +1,6 @@
 dependencies {
     implementation project(':model')
+    implementation project(":exceptions")
 
     //Dependecias agregadas
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
