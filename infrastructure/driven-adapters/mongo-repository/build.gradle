@@ -1,10 +1,20 @@
 dependencies {
     implementation project (':usecases')
     implementation project(':model')
+    implementation project(':admin')
     implementation project (':serializer')
 
+    implementation 'org.springframework.boot:spring-boot-starter-data-mongodb-reactive'
 
-    implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
-    implementation 'org.springframework.boot:spring-boot-starter-web'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'io.projectreactor:reactor-test'
+    testImplementation 'org.mockito:mockito-core'
+    testImplementation 'org.mockito:mockito-junit-jupiter'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+    testImplementation group: 'de.flapdoodle.embed', name: 'de.flapdoodle.embed.mongo', version: '4.18.1'
+}
 
+tasks.named('test') {
+    useJUnitPlatform()
 }
