@@ -1,4 +1,4 @@
-package ec.com.sofka.transaction.commands;
+package ec.com.sofka.transaction.command;
 
 import ec.com.sofka.generics.utils.Command;
 import ec.com.sofka.transaction.TransactionType;

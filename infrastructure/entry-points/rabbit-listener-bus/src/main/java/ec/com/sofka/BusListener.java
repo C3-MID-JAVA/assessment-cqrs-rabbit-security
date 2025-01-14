@@ -72,7 +72,7 @@ public class BusListener implements BusEventListener {
                 transactionCreated.getId(),
                 transactionCreated.getAmount(),
                 transactionCreated.getFee(),
-                transactionCreated.getNetAmount(),
+                transactionCreated.getFinalAmount(),
                 transactionCreated.getType(),
                 transactionCreated.getTimestamp(),
                 transactionCreated.getAccountId()

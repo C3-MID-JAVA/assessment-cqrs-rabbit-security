@@ -1,7 +1,5 @@
 package ec.com.sofka.router;
 
-import ec.com.sofka.dto.GetAccountByNumberRequestDTO;
-import ec.com.sofka.dto.GetTransactionByAccountRequestDTO;
 import ec.com.sofka.dto.TransactionRequestDTO;
 import ec.com.sofka.dto.TransactionResponseDTO;
 import ec.com.sofka.exception.ErrorResponse;
@@ -13,7 +11,6 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springdoc.core.annotations.RouterOperation;
 import org.springdoc.core.annotations.RouterOperations;
 import org.springframework.context.annotation.Bean;

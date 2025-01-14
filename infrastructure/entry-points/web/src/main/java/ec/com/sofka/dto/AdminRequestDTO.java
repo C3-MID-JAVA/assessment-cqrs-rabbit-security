@@ -17,7 +17,7 @@ public class AdminRequestDTO {
     String password;
 
     @NotBlank(message = "Role cannot be blank")
-    @Pattern(regexp = "ADMIN|USER|GOD", message = "Invalid role")
+    @Pattern(regexp = "ADMIN|USER|SUPER_ADMIN", message = "Invalid role")
     private String role;
 
     public AdminRequestDTO(String email, String password, String role) {

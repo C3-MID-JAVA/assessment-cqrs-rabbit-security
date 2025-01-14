@@ -1,4 +1,4 @@
-package ec.com.sofka.transaction.commands.usecases;
+package ec.com.sofka.transaction.command.usecases;
 
 import ec.com.sofka.BadRequestException;
 import ec.com.sofka.NotFoundException;
@@ -11,7 +11,7 @@ import ec.com.sofka.gateway.IEventStore;
 import ec.com.sofka.gateway.dto.AccountDTO;
 import ec.com.sofka.generics.domain.DomainEvent;
 import ec.com.sofka.generics.interfaces.IUseCaseExecute;
-import ec.com.sofka.transaction.commands.CreateTransactionCommand;
+import ec.com.sofka.transaction.command.CreateTransactionCommand;
 import ec.com.sofka.transaction.queries.responses.TransactionResponse;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
