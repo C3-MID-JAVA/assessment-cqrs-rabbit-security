@@ -1,54 +1,76 @@
 package ec.com.sofka.commands.usecases;
 
 
-import ec.com.sofka.aggregate.Customer;
+import ec.com.sofka.account.Account;
+import ec.com.sofka.aggregate.account.Customer;
+import ec.com.sofka.card.Card;
 import ec.com.sofka.commands.CreateAccountCommand;
 import ec.com.sofka.gateway.BusEvent;
+import ec.com.sofka.gateway.IAccountRepository;
 import ec.com.sofka.gateway.IEventStore;
+import ec.com.sofka.generics.domain.DomainEvent;
 import ec.com.sofka.generics.interfaces.IUseCaseExecute;
-import ec.com.sofka.queries.responses.CreateAccountResponse;
+import ec.com.sofka.queries.responses.account.CreateAccountResponse;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
-//Usage of the IUseCase interface
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+
 public class CreateAccountUseCase implements IUseCaseExecute<CreateAccountCommand, CreateAccountResponse> {
-    private final IEventStore repository;
+    private final IEventStore eventRepository;
     private final BusEvent busEvent;
 
     public CreateAccountUseCase(IEventStore repository, BusEvent busEvent) {
-        this.repository = repository;
+        this.eventRepository = repository;
         this.busEvent = busEvent;
     }
 
-    //Of course, you have to create that class Response in usecases module on a package called responses or you can also group the command with their response class in a folder (Screaming architecture)
-    //You maybe want to check Jacobo's repository to see how he did it
+
     @Override
-    public CreateAccountResponse execute(CreateAccountCommand request) {
-        //Create the aggregate, remember this usecase is to create the account the first time so just have to create it.
-        Customer customer = new Customer();
+    public Mono<CreateAccountResponse> execute(CreateAccountCommand cmd) {
+        return eventRepository.findAllAggregate("customer")
+                .collectList()
+                .flatMap(events -> {
+                    Optional<Customer> existingCustomer = events.stream()
+                            .map(event -> Customer.from(event.getAggregateRootId(), Flux.fromIterable(events)).block())
+                            .filter(customer -> customer != null &&
+                                    customer.getAccount() != null &&
+                                    customer.getAccount().getAccountNumber().getValue().equals(cmd.getAccountNumber()))
+                            .findFirst();
 
-        //Then we create the account
-        customer.createAccount(request.getNumber(), request.getBalance(),  request.getCustomerName(),request.getStatus());
+                    if (existingCustomer.isPresent()) {
+                        return Mono.error(new RuntimeException(
+                                "Account with number " + cmd.getAccountNumber() + " already exists"));
+                    }
+
+                    Customer newCustomer = new Customer();
+                    newCustomer.createAccount(
+                            cmd.getBalance(),
+                            cmd.getAccountNumber(),
+                            cmd.getOwnerName(),
+                            cmd.getAccountType()
+                    );
 
 
-        //Last step for events to be saved
-        //Oh, you look someone who would like rabbits because if the save is done correctly,
-        // I can send the message to the queue
-        customer.getUncommittedEvents()
-                .stream()
-                        .map(repository::save)
-                                .forEach(busEvent::sendEvent);
+                    newCustomer.getUncommittedEvents()
+                            .stream()
+                            .map(eventRepository::save)
+                            .forEach(busEvent::sendEventAccountCreated);
+
+                    newCustomer.markEventsAsCommitted();
 
 
-        //Then, call this stuff
-        customer.markEventsAsCommitted();
-
-        //Return the response
-        return new CreateAccountResponse(
-                customer.getId().getValue(),
-                customer.getAccount().getId().getValue(),
-                customer.getAccount().getNumber().getValue(),
-                customer.getAccount().getName().getValue(),
-                customer.getAccount().getBalance().getValue(),
-                customer.getAccount().getStatus().getValue()
-        );
+                    return Mono.just(new CreateAccountResponse(
+                            newCustomer.getId().getValue(),
+                            newCustomer.getAccount().getAccountNumber().getValue(),
+                            newCustomer.getAccount().getOwnerName().getValue(),
+                            newCustomer.getAccount().getType().getValue(),
+                            newCustomer.getAccount().getBalance().getValue()
+                    ));
+                });
     }
 }
+

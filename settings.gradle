@@ -1,4 +1,4 @@
-rootProject.name = 'assessment-cqrs-rabbit-security'
+rootProject.name = 'assessment-eda-es'
 
 include ':app-service'
 findProject(':app-service').projectDir = file('./applications/app-service')
@@ -18,12 +18,31 @@ findProject(':web').projectDir = file('./infrastructure/entry-points/web')
 include ':serializer'
 findProject(':serializer').projectDir = file('./infrastructure/helpers/serializer')
 
-//Rabbitmq
-include ':app-logs'
-findProject(':app-logs').projectDir = file ('./applications/app-logs')
+include ':helpers'
+findProject(':helpers').projectDir = file('./shared/helpers')
+
+
+
 
 include ':rabbit-info-bus'
 findProject(':rabbit-info-bus').projectDir = file('./infrastructure/driven-adapters/rabbit-info-bus')
 
+
+include 'app-logs'
+findProject(':app-logs').projectDir = file('./applications/app-logs')
+
+
 include ':rabbit-listener-bus'
 findProject(':rabbit-listener-bus').projectDir = file('./infrastructure/entry-points/rabbit-listener-bus')
+
+include ':rabbit-properties'
+findProject(':rabbit-properties').projectDir = file('./shared/rabbit-properties')
+
+include ':user'
+findProject(':user').projectDir = file('./domain/user')
+
+include ':security'
+findProject(':security').projectDir = file('./shared/security')
+
+include ':web-security'
+findProject(':web-security').projectDir = file('./infrastructure/entry-points/web-security')

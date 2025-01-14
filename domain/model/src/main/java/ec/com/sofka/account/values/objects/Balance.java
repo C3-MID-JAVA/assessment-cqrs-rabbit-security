@@ -1,13 +1,13 @@
 package ec.com.sofka.account.values.objects;
 
+import ec.com.sofka.exceptions.IlegalArgumentExcep;
 import ec.com.sofka.generics.interfaces.IValueObject;
 
 import java.math.BigDecimal;
 
-//4. Creation of a value object: In Value objects is where validations must go.
-//Objects values garantees the integrity of the data
+
 public class Balance implements IValueObject<BigDecimal> {
-    private final BigDecimal value;
+    private  BigDecimal value;
 
     private Balance(final BigDecimal value) {
         this.value = validate(value);
@@ -17,12 +17,14 @@ public class Balance implements IValueObject<BigDecimal> {
         return new Balance(value);
     }
 
+    public Balance() {
+    }
+
     @Override
     public BigDecimal getValue() {
         return this.value;
     }
 
-    //hello validations
     private BigDecimal validate(final BigDecimal value){
         if(value == null){
             throw new IllegalArgumentException("The balance can't be null");

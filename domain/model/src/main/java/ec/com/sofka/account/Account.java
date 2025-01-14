@@ -1,43 +1,49 @@
 package ec.com.sofka.account;
 
+
 import ec.com.sofka.account.values.AccountId;
+import ec.com.sofka.account.values.objects.AccountType;
 import ec.com.sofka.account.values.objects.Balance;
-import ec.com.sofka.account.values.objects.Name;
-import ec.com.sofka.account.values.objects.NumberAcc;
-import ec.com.sofka.account.values.objects.Status;
+import ec.com.sofka.account.values.objects.OwnerName;
+import ec.com.sofka.account.values.objects.AccountNumber;
 import ec.com.sofka.generics.utils.Entity;
 
-//4. Creation of an Entity class - They have logic and behavior, otherwise is a ValueObject.
+
+
 public class Account extends Entity<AccountId> {
     private final Balance balance;
-    private final NumberAcc numberAcc;
-    private final Name name;
-    private final Status status;
+    private final AccountNumber accountNumber;
+    private final OwnerName ownerName;
+    private final AccountType type;
 
-    public Account(AccountId id,  NumberAcc numberAcc, Name name, Balance balance, Status status) {
+    public Account(AccountId id, Balance balance, AccountNumber numberAcc, OwnerName name, AccountType type) {
         super(id);
         this.balance = balance;
-        this.numberAcc = numberAcc;
-        this.name = name;
-        this.status = status;
+        this.accountNumber = numberAcc;
+        this.ownerName = name;
+        this.type = type;
     }
 
-
+    public Account() {
+        super(null);
+        this.balance = null;
+        this.accountNumber = null;
+        this.ownerName = null;
+        this.type = null;
+    }
 
     public Balance getBalance() {
         return balance;
     }
 
-    public NumberAcc getNumber() {
-        return numberAcc;
+    public AccountNumber getAccountNumber() {
+        return accountNumber;
     }
-    public Name getName() {
-        return name;
-    }
-
-    public Status getStatus() {
-        return status;
+    public OwnerName getOwnerName() {
+        return ownerName;
     }
 
-
+    public AccountType getType() {
+        return type;
+    }
 }
