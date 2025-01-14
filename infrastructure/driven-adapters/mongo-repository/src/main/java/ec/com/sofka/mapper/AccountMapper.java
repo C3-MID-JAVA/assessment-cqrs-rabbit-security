@@ -10,18 +10,18 @@ public class AccountMapper {
                 accountDTO.getName(),
                 accountDTO.getAccountNumber(),
                 accountDTO.getBalance(),
-                accountDTO.getStatus()
+                accountDTO.getStatus(),
+                accountDTO.getIdUser()
                 );
     }
 
     public static AccountDTO toDTO(AccountEntity accountEntity) {
         return new AccountDTO(
-                accountEntity.getAccountId(),
+                accountEntity.getId(),
                 accountEntity.getName(),
                 accountEntity.getAccountNumber(),
                 accountEntity.getBalance(),
                 accountEntity.getStatus()
-
         );
     }
 }

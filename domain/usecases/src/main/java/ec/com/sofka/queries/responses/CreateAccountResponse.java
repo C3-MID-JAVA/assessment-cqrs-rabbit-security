@@ -10,15 +10,17 @@ public class CreateAccountResponse {
     private final String name;
     private final BigDecimal balance;
     private final String status;
+    private final String idUser;
 
 
-    public CreateAccountResponse(String customerId, String accountId, String accountNumber, String name, BigDecimal balance, String status) {
+    public CreateAccountResponse(String customerId, String accountId, String accountNumber, String name, BigDecimal balance, String status, String idUser) {
         this.customerId = customerId;
         this.accountId = accountId;
         this.accountNumber = accountNumber;
         this.name = name;
         this.balance = balance;
         this.status = status;
+        this.idUser = idUser;
     }
 
     public String getAccountId() {
@@ -43,5 +45,9 @@ public class CreateAccountResponse {
 
     public String getStatus() {
         return status;
+    }
+
+    public String getIdUser() {
+        return idUser;
     }
 }

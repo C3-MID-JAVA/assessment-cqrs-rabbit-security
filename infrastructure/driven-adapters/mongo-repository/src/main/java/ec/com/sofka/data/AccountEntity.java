@@ -6,55 +6,54 @@ import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.math.BigDecimal;
 
-@Document(collection = "bank_account")
+@Document(collection = "account")
 public class AccountEntity {
     @Id
     private String id;
-
+/*
     @Field("account_id")
     private String accountId;
-
+*/
     @Field("account_number")
     private String accountNumber;
 
-    @Field("account_holder")
+    @Field("owner")
     private String name;
 
-    @Field("global_balance")
+    @Field("balance")
     private BigDecimal balance;
 
     @Field("status_account")
     private String status;
 
-    public AccountEntity(String accountId, String name, String accountNumber, BigDecimal balance,  String status) {
-        this.accountId = accountId;
-        this.name = name;
-        this.accountNumber = accountNumber;
-        this.balance = balance;
-        this.status = status;
-    }
-
-    public AccountEntity(String id, String accountId, String name, String accountNumber, BigDecimal balance,  String status) {
-        this.id = id;
-        this.accountId = accountId;
-        this.name = name;
-        this.accountNumber = accountNumber;
-        this.balance = balance;
-        this.status = status;
-    }
+    private String idUser;
 
     public AccountEntity(){
-        
+
+    }
+    public AccountEntity(String id,  String name, String accountNumber, BigDecimal balance,  String status) {
+        this.id = id;
+        this.name = name;
+        this.accountNumber = accountNumber;
+        this.balance = balance;
+        this.status = status;
     }
 
-    public String getAccountId() {
-        return accountId;
+
+    public AccountEntity(String id, String name, String accountNumber, BigDecimal balance,  String status, String idUser) {
+        this.id = id;
+        this.name = name;
+        this.accountNumber = accountNumber;
+        this.balance = balance;
+        this.status = status;
+        this.idUser=idUser;
     }
+
+
 
     public String getId() {
         return id;
     }
-
 
     public String getAccountNumber() {
         return accountNumber;
@@ -74,6 +73,9 @@ public class AccountEntity {
         return status;
     }
 
+    public String getIdUser() {
+        return idUser;
+    }
 
 
 }

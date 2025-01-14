@@ -10,7 +10,7 @@ public class UpdateAccountResponse {
     private String name;
     private BigDecimal balance;
     private String status;
-
+    private String idUser;
 
     public UpdateAccountResponse(String customerId, String accountId, String accountNumber, String name, String status) {
         this.customerId = customerId;
@@ -18,6 +18,15 @@ public class UpdateAccountResponse {
         this.accountNumber = accountNumber;
         this.name = name;
         this.status = status;
+    }
+
+    public UpdateAccountResponse(String customerId, String accountId, String accountNumber, String name, String status, String idUser) {
+        this.customerId = customerId;
+        this.accountId = accountId;
+        this.accountNumber = accountNumber;
+        this.name = name;
+        this.status = status;
+        this.idUser = idUser;
     }
 
     public UpdateAccountResponse(String customerId, String accountId, String accountNumber, String name, BigDecimal balance) {
@@ -40,6 +49,7 @@ public class UpdateAccountResponse {
     public String getAccountId() {
         return accountId;
     }
+
     public String getAccountNumber() {
         return accountNumber;
     }
@@ -54,5 +64,9 @@ public class UpdateAccountResponse {
 
     public String getStatus() {
         return status;
+    }
+
+    public String getIdUser() {
+        return idUser;
     }
 }

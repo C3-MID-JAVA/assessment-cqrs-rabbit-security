@@ -10,13 +10,15 @@ public class UpdateAccountCommand extends Command {
     private final String numberAcc;
     private final String customerName;
     private final String status;
+    private final String  idUser;
 
-    public UpdateAccountCommand(final String aggregateId, final BigDecimal balance, final String numberAcc, final String customerName, final String status) {
+    public UpdateAccountCommand(final String aggregateId, final BigDecimal balance, final String numberAcc, final String customerName, final String status, final String idUser) {
         super(aggregateId);
         this.balance = balance;
         this.numberAcc = numberAcc;
         this.customerName = customerName;
         this.status = status;
+        this.idUser = idUser;
     }
 
     public BigDecimal getBalance() {
@@ -33,5 +35,9 @@ public class UpdateAccountCommand extends Command {
 
     public String getStatus() {
         return status;
+    }
+
+    public String getIdUser() {
+        return idUser;
     }
 }

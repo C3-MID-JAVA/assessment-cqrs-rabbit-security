@@ -1,3 +1,4 @@
+
 package ec.com.sofka.handlers;
 
 import ec.com.sofka.commands.CreateAccountCommand;
@@ -8,11 +9,14 @@ import ec.com.sofka.data.RequestDTO;
 import ec.com.sofka.data.ResponseDTO;
 import ec.com.sofka.queries.query.GetAccountQuery;
 import ec.com.sofka.commands.UpdateAccountCommand;
+import ec.com.sofka.queries.responses.GetAccountResponse;
 import ec.com.sofka.queries.usecases.GetAccountByNumberUseCase;
 import ec.com.sofka.queries.usecases.GetAllAccountsUseCase;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
+import org.springframework.web.reactive.function.server.ServerResponse;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 @Component
 public class AccountHandler {
@@ -30,25 +34,26 @@ public class AccountHandler {
         this.deleteAccountUseCase = deleteAccountUseCase;
     }
 
-    public ResponseDTO createAccount(RequestDTO request){
-        var response = createAccountUseCase.execute(
+    public Mono<ResponseDTO> createAccount(RequestDTO request) {
+        return createAccountUseCase.execute(
                 new CreateAccountCommand(
                         request.getAccountNum(),
                         request.getName(),
-                        request.getBalance()
-
-                ));
-        return new ResponseDTO(response.getCustomerId(),
+                        request.getBalance(),
+                        request.getIdUser()
+                )).map(response -> new ResponseDTO(
+                response.getCustomerId(),
                 response.getAccountId(),
                 response.getName(),
                 response.getAccountNumber(),
                 response.getBalance(),
-                response.getStatus());
+                response.getStatus()
+        ));
     }
 
-    public List<ResponseDTO> getAllAccounts(){
-        var response = getAllAccountsUseCase.get(new GetAccountQuery());
-        return response.getMultipleResults().stream()
+    public Flux<ResponseDTO> getAllAccounts() {
+        return getAllAccountsUseCase.get(new GetAccountQuery())
+                .flatMapMany(response -> Flux.fromIterable(response.getMultipleResults()))
                 .map(accountResponse -> new ResponseDTO(
                         accountResponse.getCustomerId(),
                         accountResponse.getAccountId(),
@@ -56,36 +61,16 @@ public class AccountHandler {
                         accountResponse.getAccountNumber(),
                         accountResponse.getBalance(),
                         accountResponse.getStatus()
-                        )
-                ).toList();
+                )).switchIfEmpty(Mono.empty());
     }
 
-    public ResponseDTO getAccountByNumber(RequestDTO request){
-        var response = getAccountByNumberUseCase.get(
-                new GetAccountQuery(
-                        request.getCustomerId(),
-                        request.getAccountNum()
-                )).getSingleResult().get();
-
-        return new ResponseDTO(
-                response.getCustomerId(),
-                response.getAccountId(),
-                response.getName(),
-                response.getAccountNumber(),
-                response.getBalance(),
-                response.getStatus());
-    }
-
-    public ResponseDTO updateAccount(RequestDTO request){
-        var response = updateAccountUseCase.execute(
-                new UpdateAccountCommand(
-                        request.getCustomerId(),
-                        request.getBalance(),
-                        request.getAccountNum(),
-                        request.getName(),
-                        request.getStatus()
-                ));
-
+public Mono<ResponseDTO> getAccountByNumber(RequestDTO request) {
+    return getAccountByNumberUseCase.get(
+            new GetAccountQuery(
+                    request.getCustomerId(),
+                    request.getAccountNum()
+            )).map(queryResponse -> {
+        GetAccountResponse response = queryResponse.getSingleResult().get();
         return new ResponseDTO(
                 response.getCustomerId(),
                 response.getAccountId(),
@@ -94,24 +79,43 @@ public class AccountHandler {
                 response.getBalance(),
                 response.getStatus()
         );
-    }
-
-    public ResponseDTO deleteAccount(RequestDTO request){
-        var response = deleteAccountUseCase.execute(
+    }).switchIfEmpty(Mono.empty());
+}
+    public Mono<ResponseDTO> updateAccount(RequestDTO request) {
+        return updateAccountUseCase.execute(
                 new UpdateAccountCommand(
                         request.getCustomerId(),
                         request.getBalance(),
                         request.getAccountNum(),
                         request.getName(),
-                        request.getStatus()
-
-                ));
-        return new ResponseDTO(
+                        request.getStatus(),
+                        request.getIdUser()
+                )).map(response -> new ResponseDTO(
                 response.getCustomerId(),
                 response.getAccountId(),
                 response.getName(),
                 response.getAccountNumber(),
                 response.getBalance(),
-                response.getStatus());
+                response.getStatus()
+        )).switchIfEmpty(Mono.empty());
+    }
+
+    public Mono<ResponseDTO> deleteAccount(RequestDTO request) {
+        return deleteAccountUseCase.execute(
+                new UpdateAccountCommand(
+                        request.getCustomerId(),
+                        request.getBalance(),
+                        request.getAccountNum(),
+                        request.getName(),
+                        request.getStatus(),
+                        request.getIdUser()
+                )).map(response -> new ResponseDTO(
+                response.getCustomerId(),
+                response.getAccountId(),
+                response.getName(),
+                response.getAccountNumber(),
+                response.getBalance(),
+                response.getStatus()
+        )).switchIfEmpty(Mono.empty());
     }
 }

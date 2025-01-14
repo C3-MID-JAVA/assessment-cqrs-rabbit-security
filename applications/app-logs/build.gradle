@@ -4,6 +4,7 @@ dependencies {
     implementation project(':rabbit-listener-bus')
     implementation project (':mongo-repository')
     implementation project(':rabbit-info-bus')
+    implementation project(":authentication")
 
     implementation("org.springframework.boot:spring-boot-starter")
     implementation("org.springframework.boot:spring-boot-starter-amqp")

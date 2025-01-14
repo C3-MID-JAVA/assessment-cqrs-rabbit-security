@@ -13,8 +13,8 @@ public class AccountSavedViewUseCase implements IUseCaseAccept<AccountDTO, Void>
 
     @Override
     public void accept(AccountDTO accountDTO) {
-        accountRepository.save(accountDTO);
+        accountRepository.save(accountDTO).subscribe();
     }
 
-
+//subscribe
 }

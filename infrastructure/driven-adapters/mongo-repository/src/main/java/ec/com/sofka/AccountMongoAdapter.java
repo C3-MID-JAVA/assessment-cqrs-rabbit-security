@@ -1,13 +1,9 @@
-package ec.com.sofka;
-
-import ec.com.sofka.account.Account;
+/*package ec.com.sofka;
 import ec.com.sofka.data.AccountEntity;
 import ec.com.sofka.database.account.IMongoRepository;
 import ec.com.sofka.gateway.AccountRepository;
 import ec.com.sofka.gateway.dto.AccountDTO;
 import ec.com.sofka.mapper.AccountMapper;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -18,7 +14,7 @@ public class AccountMongoAdapter implements AccountRepository {
     private final IMongoRepository repository;
     //private final MongoTemplate accountMongoTemplate;
 
-    public AccountMongoAdapter(IMongoRepository repository/*, @Qualifier("accountMongoTemplate")  MongoTemplate accountMongoTemplate*/) {
+    public AccountMongoAdapter(IMongoRepository repository) {
         this.repository = repository;
         //this.accountMongoTemplate = accountMongoTemplate;
     }
@@ -29,8 +25,8 @@ public class AccountMongoAdapter implements AccountRepository {
     }
 
     @Override
-    public AccountDTO findByAcccountId(String id) {
-        AccountEntity found = repository.findById(id).get();
+    public AccountDTO findById(String id) {
+        AccountEntity found =  repository.findById(id).orElse(null);
         return AccountMapper.toDTO(found);
     }
 
@@ -51,17 +47,16 @@ public class AccountMongoAdapter implements AccountRepository {
     public AccountDTO update(AccountDTO account) {
         AccountEntity a = AccountMapper.toEntity(account);
 
-        AccountEntity found = repository.findByAccountId(AccountMapper.toEntity(account).getAccountId());
 
-        return found != null ?
+        return findById(account.getId()) != null ?
                 AccountMapper.toDTO(repository.save(
                     new AccountEntity(
-                            found.getId(),
-                            found.getAccountId(),
+                            account.getId(),
                             account.getName(),
                             account.getAccountNumber(),
-                            found.getBalance(),
-                            found.getStatus()
+                            account.getBalance(),
+                            account.getStatus(),
+                            account.getIdUser()
                         )
                     )) : null;
 
@@ -70,20 +65,85 @@ public class AccountMongoAdapter implements AccountRepository {
 
     @Override
     public AccountDTO delete(AccountDTO account) {
-        AccountEntity a = AccountMapper.toEntity(account);
+        //AccountEntity a = AccountMapper.toEntity(account);
 
-        AccountEntity found = repository.findByAccountId(AccountMapper.toEntity(account).getAccountId());
+        //AccountEntity found = repository.findById(AccountMapper.toEntity(account).getId());
 
-        return found != null ?
+        return findById(account.getId()) != null ?
                 AccountMapper.toDTO(repository.save(
                         new AccountEntity(
-                                found.getId(),
-                                found.getAccountId(),
-                                found.getName(),
-                                found.getAccountNumber(),
-                                found.getBalance(),
-                                account.getStatus()
+                                account.getId(),
+                                account.getName(),
+                                account.getAccountNumber(),
+                                account.getBalance(),
+                                account.getStatus(),
+                                account.getIdUser()
                         )
                 )) : null;
+    }
+}
+*/
+
+package ec.com.sofka;
+
+import ec.com.sofka.data.AccountEntity;
+import ec.com.sofka.database.account.IMongoRepository;
+import ec.com.sofka.gateway.AccountRepository;
+import ec.com.sofka.gateway.dto.AccountDTO;
+import ec.com.sofka.mapper.AccountMapper;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
+import org.springframework.stereotype.Repository;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
+@Repository
+public class AccountMongoAdapter implements AccountRepository {
+
+    private final IMongoRepository repository;
+    private final ReactiveMongoTemplate accountMongoTemplate;
+
+    public AccountMongoAdapter(IMongoRepository repository, @Qualifier("accountMongoTemplate") ReactiveMongoTemplate accountMongoTemplate) {
+        this.repository = repository;
+        this.accountMongoTemplate = accountMongoTemplate;
+    }
+
+    @Override
+    public Flux<AccountDTO> findAll() {
+        return repository.findAll().map(AccountMapper::toDTO);
+    }
+
+    @Override
+    public Mono<AccountDTO> findById(String id) {
+        return repository.findById(id).map(AccountMapper::toDTO);
+    }
+
+    @Override
+    public Mono<AccountDTO> findByNumber(String number) {
+        return repository.findByAccountNumber(number).map(AccountMapper::toDTO);
+    }
+
+    @Override
+    public Mono<AccountDTO> save(AccountDTO account) {
+        AccountEntity entity = AccountMapper.toEntity(account);
+        return repository.save(entity).map(AccountMapper::toDTO);
+    }
+
+    @Override
+    public Mono<AccountDTO> update(AccountDTO account) {
+        return findById(account.getId())
+                .flatMap(existingAccount -> {
+                    AccountEntity entity = AccountMapper.toEntity(account);
+                    return repository.save(entity).map(AccountMapper::toDTO);
+                });
+    }
+
+    @Override
+    public Mono<AccountDTO> delete(AccountDTO account) {
+        return findById(account.getId())
+                .flatMap(existingAccount -> {
+                    AccountEntity entity = AccountMapper.toEntity(account);
+                    return repository.delete(entity).thenReturn(AccountMapper.toDTO(entity));
+                });
     }
 }

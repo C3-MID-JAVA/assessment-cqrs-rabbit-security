@@ -10,6 +10,8 @@ public class ResponseDTO {
     public BigDecimal balance;
     public String status;
 
+
+    public  ResponseDTO(){}
     //After delete
     public ResponseDTO(String customerId, String accountId, String accountName, String status) {
         this.customerId = customerId;

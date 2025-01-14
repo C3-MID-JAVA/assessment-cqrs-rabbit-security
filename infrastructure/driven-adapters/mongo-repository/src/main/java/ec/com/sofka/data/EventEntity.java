@@ -9,7 +9,6 @@ import org.springframework.data.mongodb.core.mapping.Field;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
-
 @Document(collection = "events")
 public class EventEntity {
     @Id
