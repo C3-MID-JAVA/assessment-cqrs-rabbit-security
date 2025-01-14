@@ -1,28 +1,49 @@
 package ec.com.sofka;
 
-import ec.com.sofka.gateway.BusEvent;
+import ec.com.sofka.appservice.gateway.IBusEvent;
 import ec.com.sofka.generics.domain.DomainEvent;
+import ec.com.sofka.utils.AccountCreatedProperties;
+import ec.com.sofka.utils.AccountUpdatedProperties;
+import ec.com.sofka.utils.TransactionCreatedProperties;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
-
-//11. BusMessage implementation, this is a service so, don't forget the annotation
 @Service
-public class BusAdapter implements BusEvent {
+public class BusAdapter implements IBusEvent {
 
-    //13. Use of RabbitTemplate to define the sendMsg method
     private final RabbitTemplate rabbitTemplate;
+    private final AccountCreatedProperties accountCreatedProperties;
+    private final TransactionCreatedProperties transactionCreatedProperties;
+    private final AccountUpdatedProperties accountUpdatedProperties;
 
-    public BusAdapter(RabbitTemplate rabbitTemplate) {
+    public BusAdapter(RabbitTemplate rabbitTemplate, AccountCreatedProperties accountCreatedProperties,
+                      TransactionCreatedProperties transactionCreatedProperties,
+                      AccountUpdatedProperties accountUpdatedProperties) {
         this.rabbitTemplate = rabbitTemplate;
+        this.accountCreatedProperties = accountCreatedProperties;
+        this.transactionCreatedProperties = transactionCreatedProperties;
+        this.accountUpdatedProperties = accountUpdatedProperties;
     }
 
     @Override
-    public void sendEvent(DomainEvent event) {
-        rabbitTemplate.convertAndSend("account.exchange",
-                "account.routingKey",
-                event);
+    public void sendEventAccountCreated(Mono<DomainEvent> event) {
+        event.subscribe(account -> {
+            rabbitTemplate.convertAndSend(accountCreatedProperties.getExchangeName(), accountCreatedProperties.getRoutingKey(), account);
+        });
     }
 
+    @Override
+    public void sendEventAccountUpdated(Mono<DomainEvent> event) {
+        event.subscribe(account -> {
+            rabbitTemplate.convertAndSend(accountUpdatedProperties.getExchangeName(), accountUpdatedProperties.getRoutingKey(), account);
+        });
+    }
 
+    @Override
+    public void sendEventTransactionCreated(Mono<DomainEvent> event) {
+        event.subscribe(transaction -> {
+            rabbitTemplate.convertAndSend(transactionCreatedProperties.getExchangeName(), transactionCreatedProperties.getRoutingKey(), transaction);
+        });
+    }
 }

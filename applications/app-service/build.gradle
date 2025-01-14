@@ -1,11 +1,18 @@
 dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter'
-    implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'org.springframework.boot:spring-boot-starter-amqp'
 
     implementation project (':usecases')
     implementation project (':mongo-repository')
-    implementation project (':web')
+    implementation project(':web')
+    implementation project(':model')
+    implementation project(':exception')
     implementation project (':serializer')
     implementation project (':rabbit-info-bus')
+    implementation project (':jwt')
+    implementation project (':web-security')
+//12. Implement the driven-adapter that has the BusMessage. Beware bc this was in the other way but in rabbit info bus and leads to circular reference
+    implementation project (':rabbit-info-bus')
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
+    //1. AMQP dependencies here bc its obviously needed in the app-service
+    implementation 'org.springframework.boot:spring-boot-starter-amqp'
 }

@@ -1,8 +1,8 @@
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-amqp'
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
     //10. Call the module that has the gateway BusMessage
     implementation project(':usecases')
-
     implementation project(':model')
-
 }

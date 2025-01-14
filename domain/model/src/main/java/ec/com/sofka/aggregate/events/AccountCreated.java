@@ -54,6 +54,6 @@ public class AccountCreated extends DomainEvent {
     public String getStatus() {
         return status;
     }
-
-
 }
+
+

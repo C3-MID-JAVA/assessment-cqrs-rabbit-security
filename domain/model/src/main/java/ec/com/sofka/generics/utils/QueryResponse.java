@@ -1,5 +1,8 @@
 package ec.com.sofka.generics.utils;
 
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -7,7 +10,7 @@ public class QueryResponse <R>{
     private final R singleResult;
     private final List<R> multipleResults;
 
-    private QueryResponse(R singleResult, List<R> multipleResults) {
+    public QueryResponse(R singleResult, List<R> multipleResults) {
         this.singleResult = singleResult;
         this.multipleResults = multipleResults;
     }
@@ -28,3 +31,4 @@ public class QueryResponse <R>{
         return multipleResults != null ? multipleResults : List.of();
     }
 }
+
