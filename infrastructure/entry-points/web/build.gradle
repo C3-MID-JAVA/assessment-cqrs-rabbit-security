@@ -3,7 +3,7 @@ dependencies {
     implementation project(':model')
     implementation project(":mongo-repository")
     implementation project(':exception')
-
+    implementation project(':security')
     implementation 'org.springframework.boot:spring-boot-starter'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation group: 'jakarta.validation', name: 'jakarta.validation-api', version: '3.1.0'

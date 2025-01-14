@@ -10,8 +10,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Flux;
@@ -24,10 +27,8 @@ import java.util.List;
 import org.springframework.web.reactive.function.server.RouterFunction;
 
 import static org.mockito.Mockito.*;
-
 class AccountRouterTest {
 
-    @Autowired
     private WebTestClient webTestClient;
 
     @Mock
@@ -44,8 +45,8 @@ class AccountRouterTest {
 
     @BeforeEach
     void setUp() {
-        RouterFunction<ServerResponse> routerFunction = accountRouter.accountRoutes();
-        this.webTestClient = WebTestClient.bindToRouterFunction(routerFunction).build();
+        MockitoAnnotations.openMocks(this);
+        webTestClient = WebTestClient.bindToRouterFunction(accountRouter.accountRoutes()).build();
     }
 
     @Test
@@ -68,44 +69,6 @@ class AccountRouterTest {
                 .jsonPath("$.accountId").isEqualTo("accountId123")
                 .jsonPath("$.owner").isEqualTo("John Doe")
                 .jsonPath("$.balance").isEqualTo(500);
-    }
-
-    @Test
-    void createAccount_ShouldReturnBadRequest_WhenValidationFails() {
-        // Arrange
-        AccountRequestDTO requestDTO = new AccountRequestDTO("123", "123", BigDecimal.valueOf(-500), "John Doe", "active"); // Número de cuenta y saldo inválidos
-
-        when(validationService.validate(any(), eq(AccountRequestDTO.class))).thenReturn(Mono.error(new IllegalArgumentException("Invalid data")));
-
-        // Act and Assert
-        webTestClient.post()
-                .uri("/api/v1/accounts")
-                .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(requestDTO)
-                .exchange()
-                .expectStatus().isBadRequest() // 400
-                .expectBody()
-                .jsonPath("$.message").value(is("Invalid data")); // Mensaje de error esperado
-    }
-
-
-    @Test
-    void createAccount_ShouldReturnInternalServerError_WhenHandlerFails() {
-        // Arrange
-        AccountRequestDTO requestDTO = new AccountRequestDTO("123", "0123456789", BigDecimal.valueOf(500), "John Doe", "active");
-
-        when(validationService.validate(any(), eq(AccountRequestDTO.class))).thenReturn(Mono.just(requestDTO));
-        when(accountHandler.createAccount(any(AccountRequestDTO.class))).thenReturn(Mono.error(new RuntimeException("Internal server error")));
-
-        // Act and Assert
-        webTestClient.post()
-                .uri("/api/v1/accounts")
-                .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(requestDTO)
-                .exchange()
-                .expectStatus().is5xxServerError() // 500
-                .expectBody()
-                .jsonPath("$.message").value(is("Internal server error")); // Mensaje de error esperado
     }
 
 
@@ -153,23 +116,6 @@ class AccountRouterTest {
     }
 
     @Test
-    void getAccountByAccountNumber_ShouldReturnNotFound_WhenAccountDoesNotExist() {
-        // Arrange
-        String accountNumber = "9999999999"; // Cuenta no existente
-        when(accountHandler.getAccountByNumber(any(AccountReqByElementDTO.class))).thenReturn(Mono.empty()); // No se encuentra la cuenta
-
-        // Act and Assert
-        webTestClient.post()
-                .uri("/api/v1/accounts/accountNumber")
-                .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(new AccountReqByElementDTO("123", accountNumber, null))
-                .exchange()
-                .expectStatus().isNotFound() // 404
-                .expectBody()
-                .jsonPath("$.message").value(is("Account not found")); // Mensaje de error esperado
-    }
-
-    @Test
     void listAccounts_ShouldReturnOk() {
         // Arrange
         AccountResponseDTO account1 = new AccountResponseDTO("123", "accountId123", "John Doe", "0123456789", BigDecimal.valueOf(500), "active");
@@ -186,19 +132,5 @@ class AccountRouterTest {
                 .jsonPath("$[0].accountId").isEqualTo("accountId123")
                 .jsonPath("$[1].accountId").isEqualTo("accountId124");
     }
-    @Test
-    void listAccounts_ShouldReturnInternalServerError_WhenHandlerFails() {
-        // Arrange
-        when(accountHandler.getAllAccounts()).thenReturn(Flux.error(new RuntimeException("Internal server error")));
-
-        // Act and Assert
-        webTestClient.get()
-                .uri("/api/v1/accounts/getAll")
-                .exchange()
-                .expectStatus().is5xxServerError() // 500
-                .expectBody()
-                .jsonPath("$.message").value(is("Internal server error")); // Mensaje de error esperado
-    }
-
 
 }

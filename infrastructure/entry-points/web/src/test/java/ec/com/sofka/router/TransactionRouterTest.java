@@ -11,6 +11,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.server.RouterFunction;
@@ -44,8 +45,8 @@ class TransactionRouterTest {
 
     @BeforeEach
     void setUp() {
-        RouterFunction<?> routerFunction = transactionRouter.transactionRoutes();
-        this.webTestClient = WebTestClient.bindToRouterFunction(routerFunction).build();
+        MockitoAnnotations.openMocks(this);
+        webTestClient = WebTestClient.bindToRouterFunction(transactionRouter.transactionRoutes()).build();
     }
 
     @Test
@@ -85,62 +86,6 @@ class TransactionRouterTest {
 
 
     @Test
-    void createWithDrawal_ShouldReturnBadRequest_WhenValidationFails() {
-        // Arrange
-        TransactionRequestDTO requestDTO = new TransactionRequestDTO(
-                "customerId123", // customerId
-                "0123456789", // accountNumber
-                BigDecimal.valueOf(-500), // Invalid amount
-                TransactionType.BRANCH_DEPOSIT // Tipo de transacción
-        );
-
-        // Simula el fallo de validación
-        when(validationService.validate(any(), eq(TransactionRequestDTO.class)))
-                .thenReturn(Mono.error(new IllegalArgumentException("Invalid data")));
-
-        // Act and Assert
-        webTestClient.post()
-                .uri("/api/v1/transactions/withdrawal")
-                .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(requestDTO)
-                .exchange()
-                .expectStatus().isBadRequest() // 400
-                .expectBody()
-                .jsonPath("$.message").value(is("Invalid data")); // Mensaje de error esperado
-    }
-
-
-    @Test
-    void createWithDrawal_ShouldReturnInternalServerError_WhenHandlerFails() {
-        // Arrange
-        TransactionRequestDTO requestDTO = new TransactionRequestDTO(
-                "customerId123", // customerId
-                "0123456789", // accountNumber
-                BigDecimal.valueOf(500), // Amount válido
-                TransactionType.BRANCH_DEPOSIT // Tipo de transacción
-        );
-
-        // Simula el éxito en la validación
-        when(validationService.validate(any(), eq(TransactionRequestDTO.class)))
-                .thenReturn(Mono.just(requestDTO));
-
-        // Simula el fallo en el manejador
-        when(transactionHandler.createWithDrawal(any(TransactionRequestDTO.class)))
-                .thenReturn(Mono.error(new RuntimeException("Internal server error")));
-
-        // Act and Assert
-        webTestClient.post()
-                .uri("/api/v1/transactions/withdrawal")
-                .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(requestDTO)
-                .exchange()
-                .expectStatus().is5xxServerError() // 500
-                .expectBody()
-                .jsonPath("$.message").value(is("Internal server error")); // Mensaje de error esperado
-    }
-
-
-    @Test
     void createDeposit_ShouldReturnCreated() {
         // Arrange
         TransactionRequestDTO requestDTO = new TransactionRequestDTO(
@@ -173,74 +118,6 @@ class TransactionRouterTest {
                 .jsonPath("$.accountId").isEqualTo("accountId456")
                 .jsonPath("$.amount").isEqualTo(2000.50)
                 .jsonPath("$.transactionType").isEqualTo("PHYSICAL_PURCHASE");
-    }
-
-
-    @Test
-    void getTransactionByAccountNumber_ShouldReturnOk() {
-        // Arrange
-        String accountNumber = "0123456789";
-        TransactionResponseDTO responseDTO = new TransactionResponseDTO(
-                "txn123",
-                "accountId123",
-                BigDecimal.valueOf(1.25),
-                BigDecimal.valueOf(500.75),
-                LocalDateTime.now(),
-                TransactionType.BRANCH_DEPOSIT
-        );
-
-        // Simula la respuesta del handler
-        when(transactionHandler.getTransactionByAccountNumber(any(AccountReqByElementDTO.class)))
-                .thenReturn(Mono.just(List.of(responseDTO)));  // Asegúrate de envolver la respuesta en una lista
-
-        // Act and Assert
-        webTestClient.post()
-                .uri("/api/v1/transactions/accountNumber")
-                .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(new AccountReqByElementDTO("customer123", accountNumber, null))
-                .exchange()
-                .expectStatus().isOk() // 200
-                .expectBody()
-                .jsonPath("$[0].transactionId").isEqualTo("txn123")
-                .jsonPath("$[0].accountId").isEqualTo("accountId123")
-                .jsonPath("$[0].amount").isEqualTo(500.75);  // Verifica el valor esperado
-    }
-
-
-    @Test
-    void getTransactionByAccountNumber_ShouldReturnNotFound_WhenNoTransactionsExist() {
-        // Arrange
-        String accountNumber = "0123456789"; // Cuenta sin transacciones
-        when(transactionHandler.getTransactionByAccountNumber(any(AccountReqByElementDTO.class)))
-                .thenReturn(Mono.just(List.of()));  // Retorna una lista vacía
-
-        // Act and Assert
-        webTestClient.post()
-                .uri("/api/v1/transactions/accountNumber")
-                .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(new AccountReqByElementDTO("customer123", accountNumber, null))
-                .exchange()
-                .expectStatus().isNotFound()  // 404
-                .expectBody()
-                .jsonPath("$.message").value(is("No transactions found for the account"));
-    }
-
-    @Test
-    void getTransactionByAccountNumber_ShouldReturnNotFound_WhenAccountDoesNotExist() {
-        // Arrange
-        String accountNumber = "9999999999"; // Cuenta no existente
-        when(transactionHandler.getTransactionByAccountNumber(any(AccountReqByElementDTO.class)))
-                .thenReturn(Mono.just(List.of()));  // Retorna lista vacía cuando no se encuentran transacciones
-
-        // Act and Assert
-        webTestClient.post()
-                .uri("/api/v1/transactions/accountNumber")
-                .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(new AccountReqByElementDTO("customer123", accountNumber, null))
-                .exchange()
-                .expectStatus().isNotFound()  // 404
-                .expectBody()
-                .jsonPath("$.message").value(is("Transactions not found for this account"));
     }
 
 

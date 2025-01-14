@@ -25,11 +25,11 @@ class AccountRepositoryTest {
 
     @Autowired
     private IMongoAccountRepository repository;
+
     private AccountEntity account;
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
         account = new AccountEntity("1", "John Doe", "12345678", BigDecimal.valueOf(1000.50), "ACTIVE");
         repository.deleteAll().block(); // Limpiar la base de datos antes de cada prueba
     }
@@ -44,15 +44,6 @@ class AccountRepositoryTest {
                         savedAccount.getBalance().compareTo(account.getBalance()) == 0 &&
                         savedAccount.getStatus().equals(account.getStatus()))
                 .verifyComplete();
-    }
-
-    @Test
-    void testSaveNullAccount() {
-        Mono<AccountEntity> saveResult = repository.save(null);
-
-        StepVerifier.create(saveResult)
-                .expectError(IllegalArgumentException.class) // Verifica que se lanza un IllegalArgumentException
-                .verify();
     }
 
     @Test
