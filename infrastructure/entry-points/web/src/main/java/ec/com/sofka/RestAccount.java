@@ -15,6 +15,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.ErrorResponse;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.reactive.function.server.*;
 import reactor.core.publisher.Mono;
 
@@ -33,120 +34,61 @@ public class RestAccount {
     @RouterOperations({
             @RouterOperation(
                     path = "/api/account",
+                    produces = {MediaType.APPLICATION_JSON_VALUE},
+                    method = RequestMethod.POST,
+                    beanClass = AccountHandler.class,
+                    beanMethod = "createAccount",
                     operation = @Operation(
-                            tags = {"Accounts"},
                             operationId = "createAccount",
-                            summary = "Create a new account",
-                            description = "This endpoint allows the creation of a new bank account.",
-                            requestBody = @RequestBody(
-                                    description = "Account creation details",
-                                    required = true,
-                                    content = @Content(
-                                            mediaType = "application/json",
-                                            schema = @Schema(implementation = RequestDTO.class)
-                                    )
-                            ),
                             responses = {
-                                    @ApiResponse(
-                                            responseCode = "201",
-                                            description = "Account successfully created",
-                                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ResponseDTO.class))
-                                    ),
-                                    @ApiResponse(
-                                            responseCode = "400",
-                                            description = "Bad request, validation error or missing required fields",
-                                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
-                                    )
-                            }
+                                    @ApiResponse(responseCode = "201", description = "Account created", content = @Content(schema = @Schema(implementation = ResponseDTO.class))),
+                                    @ApiResponse(responseCode = "400", description = "Invalid input")
+                            },
+                            requestBody = @RequestBody(content = @Content(schema = @Schema(implementation = RequestDTO.class)))
                     )
             ),
             @RouterOperation(
                     path = "/api/accounts",
+                    produces = {MediaType.APPLICATION_JSON_VALUE},
+                    method = RequestMethod.GET,
+                    beanClass = AccountHandler.class,
+                    beanMethod = "getAllAccounts",
                     operation = @Operation(
-                            tags = {"Accounts"},
                             operationId = "getAllAccounts",
-                            summary = "Get all accounts",
-                            description = "This endpoint retrieves all bank accounts.",
                             responses = {
-                                    @ApiResponse(
-                                            responseCode = "200",
-                                            description = "Successfully retrieved all accounts",
-                                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ResponseDTO.class))
-                                    ),
-                                    @ApiResponse(
-                                            responseCode = "400",
-                                            description = "Bad request",
-                                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
-                                    )
+                                    @ApiResponse(responseCode = "200", description = "Accounts retrieved", content = @Content(schema = @Schema(implementation = ResponseDTO.class))),
+                                    @ApiResponse(responseCode = "404", description = "No accounts found")
                             }
                     )
             ),
             @RouterOperation(
                     path = "/api/account/number",
+                    produces = {MediaType.APPLICATION_JSON_VALUE},
+                    method = RequestMethod.POST,
+                    beanClass = AccountHandler.class,
+                    beanMethod = "getAccountByNumber",
                     operation = @Operation(
-                            tags = {"Accounts"},
                             operationId = "getAccountByNumber",
-                            summary = "Get account by number",
-                            description = "This endpoint retrieves a bank account by its number.",
-                            requestBody = @RequestBody(
-                                    description = "Account number details",
-                                    required = true,
-                                    content = @Content(
-                                            mediaType = "application/json",
-                                            schema = @Schema(implementation = RequestDTO.class)
-                                    )
-                            ),
                             responses = {
-                                    @ApiResponse(
-                                            responseCode = "200",
-                                            description = "Successfully retrieved the account",
-                                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ResponseDTO.class))
-                                    ),
-                                    @ApiResponse(
-                                            responseCode = "400",
-                                            description = "Bad request",
-                                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
-                                    ),
-                                    @ApiResponse(
-                                            responseCode = "404",
-                                            description = "Account not found",
-                                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
-                                    )
-                            }
+                                    @ApiResponse(responseCode = "200", description = "Account retrieved", content = @Content(schema = @Schema(implementation = ResponseDTO.class))),
+                                    @ApiResponse(responseCode = "404", description = "Account not found")
+                            },
+                            requestBody = @RequestBody(content = @Content(schema = @Schema(implementation = RequestDTO.class)))
                     )
             ),
             @RouterOperation(
                     path = "/api/account",
+                    produces = {MediaType.APPLICATION_JSON_VALUE},
+                    method = RequestMethod.PUT,
+                    beanClass = AccountHandler.class,
+                    beanMethod = "updateAccount",
                     operation = @Operation(
-                            tags = {"Accounts"},
                             operationId = "updateAccount",
-                            summary = "Update an existing account",
-                            description = "This endpoint allows updating an existing bank account.",
-                            requestBody = @RequestBody(
-                                    description = "Account update details",
-                                    required = true,
-                                    content = @Content(
-                                            mediaType = "application/json",
-                                            schema = @Schema(implementation = RequestDTO.class)
-                                    )
-                            ),
                             responses = {
-                                    @ApiResponse(
-                                            responseCode = "200",
-                                            description = "Account successfully updated",
-                                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ResponseDTO.class))
-                                    ),
-                                    @ApiResponse(
-                                            responseCode = "400",
-                                            description = "Bad request, validation error or missing required fields",
-                                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
-                                    ),
-                                    @ApiResponse(
-                                            responseCode = "404",
-                                            description = "Account not found",
-                                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
-                                    )
-                            }
+                                    @ApiResponse(responseCode = "200", description = "Account updated", content = @Content(schema = @Schema(implementation = ResponseDTO.class))),
+                                    @ApiResponse(responseCode = "400", description = "Invalid input")
+                            },
+                            requestBody = @RequestBody(content = @Content(schema = @Schema(implementation = RequestDTO.class)))
                     )
             )
     })
