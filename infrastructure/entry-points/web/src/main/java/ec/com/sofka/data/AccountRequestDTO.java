@@ -9,7 +9,6 @@ import jakarta.validation.constraints.Size;
 import java.math.BigDecimal;
 @Schema(description = "Request body for creating an account")
 public class AccountRequestDTO {
-    public String customerId;
 
     @NotNull(message = "The account number must not be null")
     @Size(min = 10, max = 10, message = "The account number must be exactly 10 characters")
@@ -28,17 +27,13 @@ public class AccountRequestDTO {
 
     public String status;
 
-    public AccountRequestDTO(String customerId, String accountNumber, BigDecimal initialBalance, String owner,String status) {
-        this.customerId = customerId;
+    public AccountRequestDTO(String accountNumber, BigDecimal initialBalance, String owner,String status) {
         this.accountNumber = accountNumber;
         this.initialBalance = initialBalance;
         this.owner = owner;
         this.status = status;
     }
 
-    public String getCustomerId() {
-        return customerId;
-    }
 
 
     public String getAccountNumber() {

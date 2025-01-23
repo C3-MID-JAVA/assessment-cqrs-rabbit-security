@@ -1,6 +1,9 @@
 package ec.com.sofka.appservice.commands.usecases;
 
 import ec.com.sofka.aggregate.Customer;
+import ec.com.sofka.aggregate.events.AccountCreated;
+import ec.com.sofka.aggregate.events.AccountUpdated;
+import ec.com.sofka.aggregate.events.EventsEnum;
 import ec.com.sofka.appservice.commands.UpdateAccountCommand;
 import ec.com.sofka.appservice.gateway.IBusEvent;
 import ec.com.sofka.appservice.queries.responses.UpdateAccountResponse;
@@ -24,12 +27,15 @@ public class UpdateAccountUseCase implements IUseCase<UpdateAccountCommand, Upda
 
     @Override
     public Mono<UpdateAccountResponse> execute(UpdateAccountCommand request) {
-        return eventRepository.findAggregate(request.getAggregateId()) // Obtener eventos como Flux<DomainEvent>
-                .collectList() // Agrupar los eventos en una lista
-                .flatMap(events -> {
-                    Flux<DomainEvent> eventFlux = Flux.fromIterable(events);
+        Mono<AccountCreated> accountCreatedEvent = eventRepository.findAllAggregateByEvent(EventsEnum.ACCOUNT_CREATED.name())
+                .switchIfEmpty(Mono.empty())
+                .map(event -> (AccountCreated) event)
+                .filter(event -> event.getAccountNumber().equals(request.getNumber()))
+                .single();
 
-                    return Customer.from(request.getAggregateId(), eventFlux)
+        return accountCreatedEvent.flatMap(accountUpdated -> {
+            Flux<DomainEvent> eventsCustomer = eventRepository.findAggregate(accountUpdated.getAggregateRootId());
+                    return Customer.from(accountUpdated.getAggregateRootId(), eventsCustomer)
                             .flatMap(customer -> {
                                 // Actualizar la cuenta en el agregado
                                 customer.updateAccount(

@@ -53,11 +53,12 @@ public class EventMongoAdapter implements IEventStore {
 
 
     @Override
-    public Flux<DomainEvent> findAllAggregates() {
-        return repository.findAll()
+    public Flux<DomainEvent> findAllAggregateByEvent(String eventType) {
+        return repository.findAllByEventType(eventType)
                 .map(eventEntity -> eventEntity.deserializeEvent(mapper))
-                .sort(Comparator.comparing(DomainEvent::getAggregateRootId)
-                        .thenComparing(DomainEvent::getVersion, Comparator.reverseOrder()));
+                .sort(Comparator.comparing(DomainEvent::getVersion)
+                        //.thenComparing(DomainEvent::getWhen)
+                );
     }
 
 }

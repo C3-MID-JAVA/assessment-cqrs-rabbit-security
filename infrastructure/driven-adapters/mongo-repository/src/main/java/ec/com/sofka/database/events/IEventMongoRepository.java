@@ -9,5 +9,7 @@ import java.util.List;
 
 public interface IEventMongoRepository extends ReactiveMongoRepository<EventEntity, String> {
     Flux<EventEntity> findByAggregateId(String aggregateId);
+    Flux<EventEntity> findAllByEventType(String eventType);
+
 }
 

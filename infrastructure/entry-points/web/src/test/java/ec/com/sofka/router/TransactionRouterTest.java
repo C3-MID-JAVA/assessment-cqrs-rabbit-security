@@ -53,7 +53,6 @@ class TransactionRouterTest {
     void createWithDrawal_ShouldReturnCreated() {
         // Arrange
         TransactionRequestDTO requestDTO = new TransactionRequestDTO(
-                "customer123",
                 "0123456789",
                 BigDecimal.valueOf(500.75),
                 TransactionType.BRANCH_DEPOSIT // O cualquier tipo de transacción válido
@@ -89,7 +88,6 @@ class TransactionRouterTest {
     void createDeposit_ShouldReturnCreated() {
         // Arrange
         TransactionRequestDTO requestDTO = new TransactionRequestDTO(
-                "customer456",
                 "0123456780",
                 BigDecimal.valueOf(2000.50),
                 TransactionType.PHYSICAL_PURCHASE // Otro tipo de transacción

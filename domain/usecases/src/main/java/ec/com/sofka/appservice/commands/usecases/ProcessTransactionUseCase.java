@@ -3,6 +3,8 @@ package ec.com.sofka.appservice.commands.usecases;
 import ec.com.sofka.ConflictException;
 import ec.com.sofka.account.Account;
 import ec.com.sofka.aggregate.Customer;
+import ec.com.sofka.aggregate.events.AccountCreated;
+import ec.com.sofka.aggregate.events.EventsEnum;
 import ec.com.sofka.appservice.commands.CreateTransactionCommand;
 import ec.com.sofka.appservice.gateway.IBusEvent;
 import ec.com.sofka.appservice.gateway.dto.AccountDTO;
@@ -53,6 +55,74 @@ public class ProcessTransactionUseCase {
 
     public Mono<TransactionResponse> apply(CreateTransactionCommand cmd, OperationType operationType) {
         GetByQuery accountNumberRequest = new GetByQuery(cmd.getAccountNumber());
+
+        Mono<AccountCreated> accountCreatedEvent = eventRepository.findAllAggregateByEvent(EventsEnum.ACCOUNT_CREATED.name())
+                .switchIfEmpty(Mono.empty())
+                .map(event -> (AccountCreated) event)
+                .filter(event -> event.getAccountNumber().equals(cmd.getAccountNumber()))
+                .single();
+
+        return accountCreatedEvent.flatMap(accountCreated -> {
+            Flux<DomainEvent> eventsCustomer = eventRepository.findAggregate(accountCreated.getAggregateRootId());
+
+            return Customer.from(accountCreated.getAggregateRootId(), eventsCustomer)
+                    .flatMap(customer -> {
+                        return getTransactionStrategyUseCase.apply(customer.getAccount(), cmd.getTransactionType(), operationType, cmd.getAmount())
+                                .flatMap(strategy -> {
+                                    BigDecimal finalBalance = calculateFinalBalanceUseCase.apply(
+                                            customer.getAccount().getBalance().getValue(),
+                                            cmd.getAmount(),
+                                            strategy.getAmount(),
+                                            operationType
+                                    );
+
+                                    if (isSaldoInsuficiente.test(finalBalance)) {
+                                        return Mono.error(new ConflictException("Insufficient balance for transaction."));
+                                    }
+
+                                    UpdateAccountCommand updateAccountRequest = new UpdateAccountCommand(
+                                            finalBalance,
+                                            customer.getAccount().getAccountNumber().getValue(),
+                                            customer.getAccount().getOwner().getValue(),
+                                            customer.getAccount().getStatus().getValue()
+                                    );
+
+                                    return updateAccountUseCase.execute(updateAccountRequest)
+                                            .flatMap(updatedAccountResponse -> {
+                                                customer.createTransaction(
+                                                        cmd.getAmount(),
+                                                        strategy.getAmount(),
+                                                        LocalDateTime.now(),
+                                                        cmd.getTransactionType(),
+                                                        updatedAccountResponse.getAccountId()
+                                                );
+
+                                                return Flux.fromIterable(customer.getUncommittedEvents())
+                                                        .flatMap(event -> {
+                                                            // Guardar el evento
+                                                            return eventRepository.save(event)
+                                                                    // Enviar el evento por BusEvent
+                                                                    .doOnNext(savedEvent ->
+                                                                            busEvent.sendEventTransactionCreated(Mono.just(savedEvent)));
+                                                        })
+                                                        .then(Mono.just(customer.getUncommittedEvents()));
+                                            })
+                                            .map(uncommittedEvents -> {
+                                                customer.markEventsAsCommitted();
+                                                return new TransactionResponse(
+                                                        customer.getId().getValue(),
+                                                        cmd.getAccountNumber(),
+                                                        strategy.getAmount(),
+                                                        cmd.getAmount(),
+                                                        LocalDateTime.now(),
+                                                        cmd.getTransactionType()
+                                                );
+                                            });
+                                });
+                    });
+        });
+    }
+            /*
         return getAccountByNumberUseCase.get(accountNumberRequest)
                 .switchIfEmpty(Mono.error(new ConflictException("Account not found")))
                 .flatMap(queryResponse -> {
@@ -60,6 +130,7 @@ public class ProcessTransactionUseCase {
                             .switchIfEmpty(Mono.error(new ConflictException("Account not found in query response.")))
                             .flatMap(accountResponse -> {
                                 Account account = Mapper.accountResponseToAccount(accountResponse);
+
 
                                 Customer customer = new Customer();
                                 return getTransactionStrategyUseCase.apply(account, cmd.getTransactionType(), operationType, cmd.getAmount())
@@ -76,7 +147,6 @@ public class ProcessTransactionUseCase {
                                             }
 
                                             UpdateAccountCommand updateAccountRequest = new UpdateAccountCommand(
-                                                    cmd.getCustomerId(),
                                                     finalBalance,
                                                     account.getAccountNumber().getValue(),
                                                     account.getOwner().getValue(),
@@ -117,6 +187,6 @@ public class ProcessTransactionUseCase {
                                                     });
                                         });
                             });
-                });
-    }
+                });*/
+
 }

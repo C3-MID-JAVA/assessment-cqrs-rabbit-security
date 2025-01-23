@@ -52,8 +52,8 @@ class AccountRouterTest {
     @Test
     void createAccount_ShouldReturnCreated() {
         // Arrange
-        AccountRequestDTO requestDTO = new AccountRequestDTO("123", "0123456789", BigDecimal.valueOf(500), "John Doe", "active");
-        AccountResponseDTO responseDTO = new AccountResponseDTO("123", "accountId123", "John Doe", "0123456789", BigDecimal.valueOf(500), "active");
+        AccountRequestDTO requestDTO = new AccountRequestDTO("0123456789", BigDecimal.valueOf(500), "John Doe", "active");
+        AccountResponseDTO responseDTO = new AccountResponseDTO("accountId123", "John Doe", "0123456789", BigDecimal.valueOf(500), "active");
 
         when(validationService.validate(any(), eq(AccountRequestDTO.class))).thenReturn(Mono.just(requestDTO));
         when(accountHandler.createAccount(any(AccountRequestDTO.class))).thenReturn(Mono.just(responseDTO));
@@ -75,8 +75,8 @@ class AccountRouterTest {
     @Test
     void updateAccount_ShouldReturnCreated() {
         // Arrange
-        AccountRequestDTO requestDTO = new AccountRequestDTO("123", "0123456789", BigDecimal.valueOf(500), "John Doe", "active");
-        AccountResponseDTO responseDTO = new AccountResponseDTO("123", "accountId123", "John Doe", "0123456789", BigDecimal.valueOf(500), "active");
+        AccountRequestDTO requestDTO = new AccountRequestDTO("0123456789", BigDecimal.valueOf(500), "John Doe", "active");
+        AccountResponseDTO responseDTO = new AccountResponseDTO("accountId123", "John Doe", "0123456789", BigDecimal.valueOf(500), "active");
 
         when(validationService.validate(any(), eq(AccountRequestDTO.class))).thenReturn(Mono.just(requestDTO));
         when(accountHandler.updateAccount(any(AccountRequestDTO.class))).thenReturn(Mono.just(responseDTO));

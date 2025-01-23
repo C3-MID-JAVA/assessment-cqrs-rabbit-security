@@ -11,8 +11,8 @@ public class UpdateAccountCommand extends Command {
     private final String customerName;
     private final String status;
 
-    public UpdateAccountCommand(final String aggregateId, final BigDecimal balance, final String numberAcc, final String customerName, final String status) {
-        super(aggregateId);
+    public UpdateAccountCommand(final BigDecimal balance, final String numberAcc, final String customerName, final String status) {
+        super(null);
         this.balance = balance;
         this.numberAcc = numberAcc;
         this.customerName = customerName;

@@ -43,7 +43,6 @@ public class AccountDTOMapper {
     // Convierte AccountRequestDTO a UpdateAccountCommand
     public static UpdateAccountCommand accountRequestDTOtoUpdateAccountCommand(AccountRequestDTO requestDTO) {
         return new UpdateAccountCommand(
-                requestDTO.getCustomerId(),
                 requestDTO.getInitialBalance(),
                 requestDTO.getAccountNumber(),
                 requestDTO.getOwner(),
