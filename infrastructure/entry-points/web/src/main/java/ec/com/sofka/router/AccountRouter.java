@@ -39,7 +39,7 @@ public class AccountRouter {
     @Bean
     @RouterOperations({
             @RouterOperation(
-                    path = "/api/v1/accounts",
+                    path = "/api/v1/accounts/create",
                     operation = @Operation(
                             tags = {"Accounts"},
                             operationId = "create",
@@ -68,7 +68,7 @@ public class AccountRouter {
                     )
             ),
             @RouterOperation(
-                    path = "/api/v1/update",
+                    path = "/api/v1/accounts/update",
                     operation = @Operation(
                             tags = {"Accounts"},
                             operationId = "update",
@@ -173,8 +173,8 @@ public class AccountRouter {
     })
     public RouterFunction<ServerResponse> accountRoutes() {
         return RouterFunctions
-                .route(POST("/api/v1/accounts").and(accept(MediaType.APPLICATION_JSON)), this::createAccount)
-                .andRoute(POST("/api/v1/update").and(accept(MediaType.APPLICATION_JSON)), this::updateAccount)
+                .route(POST("/api/v1/accounts/create").and(accept(MediaType.APPLICATION_JSON)), this::createAccount)
+                .andRoute(POST("/api/v1/accounts/update").and(accept(MediaType.APPLICATION_JSON)), this::updateAccount)
                 .andRoute(POST("/api/v1/accounts/accountNumber").and(accept(MediaType.APPLICATION_JSON)), this::getAccountByAccountNumber)
                 .andRoute(GET("/api/v1/accounts/getAll"), this::listAccounts)
                 .andRoute(POST("/api/v1/accounts/accountId").and(accept(MediaType.APPLICATION_JSON)), this::getAccountById)

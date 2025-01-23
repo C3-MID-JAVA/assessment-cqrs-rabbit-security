@@ -2,6 +2,7 @@ package ec.com.sofka.services;
 
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
@@ -37,7 +38,7 @@ public class JWTService {
                 .setClaims(extraClaims)
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60)) //15 minutes
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 120)) //120 minutes
                 .signWith(getSignIngKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
@@ -56,11 +57,17 @@ public class JWTService {
     }
 
     public Claims extractAllClaims(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(getSignIngKey())
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
+        try {
+            return Jwts.parserBuilder()
+                    .setSigningKey(getSignIngKey())
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+        }catch (ExpiredJwtException e) {
+                throw new ExpiredJwtException(null, null, "Token expired", e);
+            } catch (Exception e) {
+                throw new RuntimeException("Error in jwt token", e);
+            }
     }
 
     private Key getSignIngKey() {
